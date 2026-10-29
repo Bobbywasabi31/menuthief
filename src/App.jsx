@@ -118,6 +118,16 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  function makeIcon(place, isSelected) {
+    const meta = categoryMeta(place.category)
+    return L.divIcon({
+      className: 'pin-wrap',
+      html: `<div class="pin${isSelected ? ' pin-selected' : ''}" style="--c:${meta.color}"><span>${meta.emoji}</span></div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 30],
+    })
+  }
+
   // Markers follow the filtered set
   useEffect(() => {
     const map = mapRef.current
@@ -126,14 +136,7 @@ export default function App() {
     for (const place of visible) {
       seen.add(place.id)
       if (markersRef.current.has(place.id)) continue
-      const meta = categoryMeta(place.category)
-      const icon = L.divIcon({
-        className: 'pin-wrap',
-        html: `<div class="pin" style="--c:${meta.color}"><span>${meta.emoji}</span></div>`,
-        iconSize: [34, 34],
-        iconAnchor: [17, 30],
-      })
-      const marker = L.marker([place.lat, place.lon], { icon })
+      const marker = L.marker([place.lat, place.lon], { icon: makeIcon(place, false) })
         .addTo(map)
         .on('click', () => selectPlace(place))
       markersRef.current.set(place.id, marker)
@@ -144,7 +147,18 @@ export default function App() {
         markersRef.current.delete(id)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
+
+  // Selected pin gets the highlighted icon
+  useEffect(() => {
+    const byId = new Map(places.map((p) => [p.id, p]))
+    for (const [id, marker] of markersRef.current) {
+      const place = byId.get(id)
+      if (place) marker.setIcon(makeIcon(place, selected?.id === id))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, places])
 
   function locate() {
     if (!navigator.geolocation) {
@@ -361,21 +375,29 @@ export default function App() {
       <div className="chips" role="tablist">
         <button
           className={filter === 'all' ? 'chip chip-on' : 'chip'}
+          role="tab" aria-selected={filter === 'all'}
           onClick={() => setFilter('all')}>All food</button>
         {CATEGORIES.map((c) => (
           <button
             key={c.key}
             className={filter === c.key ? 'chip chip-on' : 'chip'}
+            role="tab" aria-selected={filter === c.key}
             onClick={() => setFilter(c.key)}>{c.emoji} {c.label}</button>
         ))}
       </div>
 
       <div id="map" ref={mapEl} />
 
-      {notice && view === 'card' && <div className="notice">{notice}</div>}
+      {notice && view === 'card' && (
+        <div className="notice">
+          <span>{notice}</span>
+          <button className="notice-close" onClick={() => setNotice('')} aria-label="Dismiss">×</button>
+        </div>
+      )}
 
       {selected && view === 'card' && (
         <section className="sheet">
+          <div className="sheet-handle" />
           <button className="sheet-close" onClick={() => setSelected(null)} aria-label="Close">×</button>
           <div className="sheet-cat" style={{ color: meta.color }}>
             {meta.emoji} {meta.label.slice(0, -1)}{selected.cuisine ? ` · ${selected.cuisine}` : ''}
@@ -402,6 +424,7 @@ export default function App() {
 
       {selected && view === 'menu' && (
         <section className="sheet sheet-menu">
+          <div className="sheet-handle" />
           <button className="sheet-close" onClick={() => setSelected(null)} aria-label="Close">×</button>
           <button className="menu-back" onClick={() => setView('card')}>← {selected.name}</button>
 
@@ -422,7 +445,7 @@ export default function App() {
 
           {menuPhase === 'loading' && (
             <div className="menu-state">
-              <p className="menu-loading">⏳ {menuNote || 'Working…'}</p>
+              <p className="menu-loading"><span className="spinner" /> {menuNote || 'Working…'}</p>
             </div>
           )}
 
@@ -511,7 +534,10 @@ export default function App() {
                       <div className="menu-item-top">
                         <span className="menu-item-name">{item.name}</span>
                         {item.price !== null && item.price !== undefined && (
-                          <span className="menu-item-price">{formatPrice(item.price)}</span>
+                          <>
+                            <span className="menu-leader" aria-hidden="true" />
+                            <span className="menu-item-price">{formatPrice(item.price)}</span>
+                          </>
                         )}
                       </div>
                       {item.description && <div className="menu-item-desc">{item.description}</div>}
@@ -543,6 +569,7 @@ export default function App() {
 
       {selected && view === 'recipe' && recipeDish && (
         <section className="sheet sheet-menu">
+          <div className="sheet-handle" />
           <button className="sheet-close" onClick={() => setSelected(null)} aria-label="Close">×</button>
           <button className="menu-back" onClick={() => setView('menu')}>← Menu · {selected.name}</button>
 
@@ -570,7 +597,7 @@ export default function App() {
 
           {recipePhase === 'loading' && (
             <div className="menu-state">
-              <p className="menu-loading">⏳ Writing the recipe with your AI key…</p>
+              <p className="menu-loading"><span className="spinner" /> Writing the recipe with your AI key…</p>
             </div>
           )}
 
@@ -592,6 +619,9 @@ export default function App() {
                 <span>Serves {Math.round(recipe.servings * recipeScale)}</span>
                 {recipe.prep_minutes != null && <span>Prep {recipe.prep_minutes} min</span>}
                 {recipe.cook_minutes != null && <span>Cook {recipe.cook_minutes} min</span>}
+                {recipe.prep_minutes != null && recipe.cook_minutes != null && (
+                  <span>Total ~{recipe.prep_minutes + recipe.cook_minutes} min</span>
+                )}
                 {recipe.difficulty && <span className="recipe-diff">{recipe.difficulty}</span>}
               </div>
               <div className="scale-row">
@@ -689,7 +719,7 @@ export default function App() {
               <button className="btn btn-primary" onClick={() => setShowSettings(false)}>Done</button>
             </div>
             <div className="modal-foot">
-              MenuThief 1.0 · Places and map © OpenStreetMap contributors ·
+              MenuThief 1.1 · Places and map © OpenStreetMap contributors ·
               Menus belong to their restaurants — recipes here are home versions
               inspired by them, never the originals.
             </div>

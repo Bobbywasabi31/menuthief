@@ -25,3 +25,28 @@ jobs:
       # The puppeteer smoke suites (smoke.mjs, smoke2.mjs, smoke3.mjs) run
       # locally; they need a Chrome download and, on restricted networks, a
       # proxy via MENUTHIEF_PROXY, so they are not part of CI yet.
+
+  android-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+      - name: Production build (single file)
+        run: npm run build
+      - name: Sync web build into the Android shell
+        run: npx cap sync android
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: menuthief-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk

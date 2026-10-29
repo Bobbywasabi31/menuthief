@@ -52,6 +52,24 @@ npm run build    # single-file build -> dist/index.html
 The build is one self-contained HTML file (all JS/CSS inlined) — open it
 in any browser, host it anywhere static.
 
+## Android app
+
+The same web build also ships as a real Android app: a thin
+[Capacitor](https://capacitorjs.com) shell (`android/`, app id
+`com.menuthief.app`) that wraps the single-file build in a WebView — one
+codebase, no fork. CI builds a debug-signed APK on every push
+(`assembleDebug`); releases attach it as `menuthief.apk`.
+
+```sh
+npm run build
+npx cap sync android   # copies dist/ into the shell
+cd android && ./gradlew assembleDebug
+```
+
+Location permission is declared for the app's "center on me" button
+(HTML5 geolocation in the WebView). The API key stays in the WebView's
+local storage, same as the browser version.
+
 ## Test
 
 ```sh
