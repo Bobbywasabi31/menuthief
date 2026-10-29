@@ -5,6 +5,16 @@
 A food-only map: every pin is somewhere to eat. Tap a place to see its
 *actual* menu; tap a dish to get a home-cook version of it.
 
+## Download
+
+- **Android app:** [`menuthief.apk`](https://github.com/Bobbywasabi31/menuthief/raw/main/menuthief.apk)
+  — right in this repo (4.2 MB, debug-signed preview build; Android will
+  ask you to allow the install). Also attached to every
+  [release](https://github.com/Bobbywasabi31/menuthief/releases).
+- **Web version:** `menuthief.html` on the
+  [latest release](https://github.com/Bobbywasabi31/menuthief/releases/latest)
+  — one self-contained file, open it in any browser.
+
 ![Map view](docs/map-view.png)
 ![Recipe view](docs/recipe-view.png)
 
