@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Logic tests (places, menus, recipes)
+        run: |
+          node test-places.mjs
+          node test-menus.mjs
+          node test-recipes.mjs
+      - name: Production build (single file)
+        run: npm run build
+      # The puppeteer smoke suites (smoke.mjs, smoke2.mjs, smoke3.mjs) run
+      # locally; they need a Chrome download and, on restricted networks, a
+      # proxy via MENUTHIEF_PROXY, so they are not part of CI yet.

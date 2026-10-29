@@ -1,0 +1,240 @@
+{
+  "place_name": "Lucha Libre Taco Shop (San Diego)",
+  "source": "website",
+  "source_url": "https://www.luchalibretacoshop.com/menu/",
+  "fetched_at": "2026-10-28T06:20:56Z",
+  "engine": "oracle:claude-applied-prompt",
+  "is_menu": true,
+  "sections": [
+    {
+      "items": [
+        {
+          "description": "Beef Birria, Tamal, Refried Beans, Rice, Sour Cream, Cheese, Salsa Muerta",
+          "name": "Tamalito Burrito",
+          "price": null
+        }
+      ],
+      "name": "Limited Time"
+    },
+    {
+      "items": [
+        {
+          "description": "Fresh Fries, Sour Cream, Pico de Gallo & Jack Cheese",
+          "name": "Classic Cali (Chicken)",
+          "price": 16
+        },
+        {
+          "description": "Fresh Fries, Sour Cream, Pico de Gallo & Jack Cheese",
+          "name": "Classic Cali (Pork Adobada)",
+          "price": 16
+        },
+        {
+          "description": "Fresh Fries, Sour Cream, Pico de Gallo & Jack Cheese",
+          "name": "Classic Cali (Steak)",
+          "price": 18
+        },
+        {
+          "description": "Grilled Chicken, Roasted Poblano Peppers, Jack Cheese, Fresh Fries, Avocado & Creamy Corn Poblano Sauce",
+          "name": "Poblano Cali",
+          "price": 17
+        },
+        {
+          "description": "Pork Adobada, Grilled Pineapple, Fresh Fries, Sour Cream, Jack Cheese, Pico de Gallo & Pineapple Habanero Sauce",
+          "name": "Ado-Haba Pi\u00f1a Cali",
+          "price": 17
+        },
+        {
+          "description": "Steak, Shrimp, Fresh Fries, Pico de Gallo, Jack Cheese, Avocado & Secret Chipotle Sauce",
+          "name": "Surfin' California Burrito",
+          "price": 19
+        },
+        {
+          "description": "Select Beef Birria or Vegan Birria. Fresh Fries, Jack Cheese, Onions-Cilantro Mix, Sour Cream & Spicy Salsa Muerta",
+          "name": "Birria Cali",
+          "price": 17.5
+        },
+        {
+          "description": "Grilled Chicken, Fresh Fries, Pico de Gallo, Jack Cheese, Avocado & Secret Chipotle Sauce",
+          "name": "Pluckin' Cali",
+          "price": 16
+        }
+      ],
+      "name": "Cali Burritos"
+    },
+    {
+      "items": [
+        {
+          "description": "Three Eggs, Tater Tots, Steak, Cheese, Secret Chipotle Sauce, Guacamole & Pico de Gallo",
+          "name": "El Hefe Burrito",
+          "price": 18
+        },
+        {
+          "description": "Select Blackened Mahi or Grilled Shrimp. Jack Cheese, Cabbage, Pico de Gallo, Rice, Black Beans & Creamy Pink Sauce",
+          "name": "Seafood Burrito",
+          "price": 17.5
+        },
+        {
+          "description": "Steak, Shrimp, Rice, Avocado, Pico de Gallo & Secret Chipotle Sauce",
+          "name": "Surf & Turf Burrito",
+          "price": 18.5
+        },
+        {
+          "description": "Refried Beans, Rice, Jack Cheese, Pico de Gallo, Lettuce & Sour Cream",
+          "name": "Classic Veggie Burrito",
+          "price": 12
+        }
+      ],
+      "name": "Burritos"
+    },
+    {
+      "items": [
+        {
+          "description": "Individual Side (8 oz)",
+          "name": "TJ Corn",
+          "price": 4
+        },
+        {
+          "description": "Individual Side (8 oz)",
+          "name": "Rice",
+          "price": 4
+        },
+        {
+          "description": "Individual Side (8 oz)",
+          "name": "Refried Beans",
+          "price": 4
+        },
+        {
+          "description": "Individual Side (8 oz)",
+          "name": "Black Beans",
+          "price": 4
+        }
+      ],
+      "name": "Sides"
+    },
+    {
+      "items": [
+        {
+          "description": "Crispy Cheese, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+          "name": "Queso Taco (Fries)",
+          "price": 5.5
+        },
+        {
+          "description": "Crispy Cheese, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+          "name": "Queso Taco (Chicken)",
+          "price": 5.5
+        },
+        {
+          "description": "Crispy Cheese, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+          "name": "Queso Taco (Steak)",
+          "price": 7.5
+        },
+        {
+          "description": "Crispy Cheese, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+          "name": "Queso Taco (Cauliflower)",
+          "price": 5.5
+        },
+        {
+          "description": "Pork Adobada, Grilled Pineapple, Jack Cheese, Cilantro, Pineapple Habanero Sauce & Sour Cream",
+          "name": "Ado-Haba Pi\u00f1a Taco",
+          "price": 6
+        },
+        {
+          "description": "Select Blackened Mahi or Grilled Shrimp. Cabbage, Pico de Gallo, Queso Enchilado & Creamy Pink Sauce on a Flour Tortilla",
+          "name": "Seafood Taco",
+          "price": 6.25
+        },
+        {
+          "description": "Steak, Pinto Beans, Guacamole, Onions-Cilantro Mix & Chipotle Tomatillo Salsa",
+          "name": "La Vaca Loca Taco",
+          "price": 6.5
+        },
+        {
+          "description": "Chicken, Pinto Beans, Guacamole, Onions-Cilantro Mix & Chipotle Tomatillo Salsa",
+          "name": "El Pollito Taco",
+          "price": 5.5
+        },
+        {
+          "description": "Pork Adobada, Pineapple, Onions-Cilantro Mix & Creamy Cilantro Salsa",
+          "name": "El Porky Taco",
+          "price": 5.5
+        },
+        {
+          "description": "Steak, Shrimp, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+          "name": "Surf & Turf Taco",
+          "price": 7.5
+        },
+        {
+          "description": "Select Beef Birria or Vegan Birria. Melted Jack Cheese, Onions-Cilantro Mix & Spicy Salsa Muerta",
+          "name": "Birria Quesa Taco",
+          "price": 6.25
+        }
+      ],
+      "name": "Tacos"
+    },
+    {
+      "items": [
+        {
+          "description": "Select Beef Birria or Vegan Birria. Tortilla Chips, Whole Beans, Onions-Cilantro Mix, Sour Cream, Jack Cheese & Salsa Muerta",
+          "name": "Birria Nachos",
+          "price": 18
+        },
+        {
+          "description": "Fries or Chips, Jack Cheese, Beans, Guacamole, Pico de Gallo, Sour Cream & Secret Chipotle Sauce. Make it Surf & Turf (+5)",
+          "name": "Champion Fries or Nachos (Chicken)",
+          "price": 17
+        },
+        {
+          "description": "Fries or Chips, Jack Cheese, Beans, Guacamole, Pico de Gallo, Sour Cream & Secret Chipotle Sauce. Make it Surf & Turf (+5)",
+          "name": "Champion Fries or Nachos (Pork Adobada)",
+          "price": 17
+        },
+        {
+          "description": "Fries or Chips, Jack Cheese, Beans, Guacamole, Pico de Gallo, Sour Cream & Secret Chipotle Sauce. Make it Surf & Turf (+5)",
+          "name": "Champion Fries or Nachos (Steak)",
+          "price": 19
+        },
+        {
+          "description": "White Corn Kernels in a cup served with Mayo, Queso Enchilado, Chili Powder & Lime",
+          "name": "TJ Corn",
+          "price": 4
+        },
+        {
+          "description": "Lettuce, Pico de Gallo, Cheese, Sour Cream, Queso Enchilado & Guacamole",
+          "name": "3 Rolled Tacos (Chicken)",
+          "price": 8.5
+        },
+        {
+          "description": "Lettuce, Pico de Gallo, Cheese, Sour Cream, Queso Enchilado & Guacamole",
+          "name": "3 Rolled Tacos (Potato)",
+          "price": 7.5
+        }
+      ],
+      "name": "Specialties"
+    },
+    {
+      "items": [
+        {
+          "description": "Kids meal main \u2014 select a side: beans, fresh fries, or rice",
+          "name": "Bean & Cheese Burrito",
+          "price": 6
+        },
+        {
+          "description": "Kids meal main \u2014 select a side: beans, fresh fries, or rice",
+          "name": "Cheese Quesadilla",
+          "price": 6
+        },
+        {
+          "description": "Kids meal main \u2014 select a side: beans, fresh fries, or rice",
+          "name": "Chicken Taco",
+          "price": 6
+        },
+        {
+          "description": "Kids meal main \u2014 select a side: beans, fresh fries, or rice",
+          "name": "2 Chicken Rolled Tacos w/ Cheese",
+          "price": 6
+        }
+      ],
+      "name": "Kids Meal"
+    }
+  ]
+}

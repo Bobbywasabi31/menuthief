@@ -1,0 +1,9 @@
+{
+  "source": "text from https://www.in-n-out.com/menu",
+  "messages": [
+    {
+      "role": "user",
+      "content": "You convert restaurant menu text into structured JSON.\n\nRules:\n- Output ONLY a JSON object matching this shape, no commentary, no code fences:\n{\n  \"is_menu\": true,\n  \"sections\": [\n    {\"name\": \"Section name (e.g. Starters, Mains, Desserts)\",\n     \"items\": [\n       {\"name\": \"Dish name exactly as written\",\n        \"description\": \"Description exactly as written, or null if none\",\n        \"price\": 16.50}\n     ]}\n  ]\n}\n- Include ONLY dishes that actually appear in the text. Never invent dishes,\n  descriptions, or prices.\n- \"price\" is a number in dollars (16.50) or null when no price is shown.\n- Keep dish names and descriptions verbatim (fix only obvious line-wrap splits).\n- Group items under the section headings used by the menu itself; if the menu\n  has no sections, use one section named \"Menu\".\n- If the text is NOT a restaurant menu (e.g. a homepage, an article, a\n  reservation page), output {\"is_menu\": false, \"sections\": []}.\n- Menus sometimes list several menus (lunch/dinner/drinks) in one document;\n  include all of them, using their headings as sections.\n\nMenu text follows:\n---\n\n---"
+    }
+  ]
+}

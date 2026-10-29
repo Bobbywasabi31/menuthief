@@ -1,0 +1,7 @@
+node_modules/
+dist/
+smoke*.png
+__pycache__/
+.venv/
+*.log
+.DS_Store

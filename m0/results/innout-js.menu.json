@@ -1,0 +1,9 @@
+{
+  "place_name": "In-N-Out Burger",
+  "source": "website",
+  "source_url": "https://www.in-n-out.com/menu",
+  "fetched_at": "2026-10-28T06:20:57Z",
+  "engine": "oracle:claude-applied-prompt",
+  "is_menu": false,
+  "sections": []
+}

@@ -1,0 +1,16 @@
+{
+  "url": "https://www.in-n-out.com/menu",
+  "fetched_at": "2026-10-28T06:19:44Z",
+  "content_type": "text/html",
+  "bytes": 212,
+  "kind": "html",
+  "text": "",
+  "menu_links": [],
+  "stats": {
+    "chars": 0,
+    "lines": 0,
+    "price_mentions": 0,
+    "price_density_per_100_lines": 0.0
+  },
+  "place_name": "In-N-Out Burger"
+}

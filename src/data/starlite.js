@@ -1,0 +1,301 @@
+// Menu captured by the M0 pipeline run (2026-10-28); provenance inside.
+export default {
+ "place_name": "Starlite (San Diego) — menu as an image",
+ "source": "user_photo",
+ "source_url": null,
+ "fetched_at": "2026-10-28T06:20:57Z",
+ "engine": "oracle:claude-applied-prompt",
+ "is_menu": true,
+ "sections": [
+  {
+   "items": [
+    {
+     "description": "trout roe, yuzu kosho, garlic, kombu potato chips",
+     "name": "Wagyu and Local Yellowtail Tartare",
+     "price": 25
+    },
+    {
+     "description": "caviar, crème fraîche, chives",
+     "name": "Mozzarella Sticks",
+     "price": 23
+    },
+    {
+     "description": "giardiniera pickles, mustard, sourdough",
+     "name": "Starlite Sausage Plate",
+     "price": 14
+    },
+    {
+     "description": "sourdough croutons, gruyère, chives",
+     "name": "French Onion Soup",
+     "price": 12
+    },
+    {
+     "description": "selection of pickled and fresh vegetables",
+     "name": "Crudités and Pickles",
+     "price": 13
+    },
+    {
+     "description": "black salt",
+     "name": "Wagyu Fat Radishes",
+     "price": 9
+    }
+   ],
+   "name": "Smaller Things"
+  },
+  {
+   "items": [
+    {
+     "description": "zipfandel mignonette, yuzu ponzu, horseradish",
+     "name": "Daily Selection of Oysters (6 pc)",
+     "price": 25
+    },
+    {
+     "description": "zipfandel mignonette, yuzu ponzu, horseradish",
+     "name": "Daily Selection of Oysters (12 pc)",
+     "price": 43
+    },
+    {
+     "description": "oysters, shrimp cocktail, whole poached lobster, snow crab claws, mussels escabeche, yellowtail crudo",
+     "name": "Seafood Tower",
+     "price": 155
+    },
+    {
+     "description": "crème fraîche, accoutrements, brioche toast points",
+     "name": "Caviar (1 oz)",
+     "price": 95
+    },
+    {
+     "description": "crème fraîche, accoutrements, brioche toast points",
+     "name": "Caviar (2 oz)",
+     "price": 180
+    },
+    {
+     "description": "cocktail sauce, lemon",
+     "name": "Classic Shrimp Cocktail",
+     "price": 18
+    }
+   ],
+   "name": "Snacks From The Deep"
+  },
+  {
+   "items": [
+    {
+     "description": null,
+     "name": "Prime Filet (6 oz)",
+     "price": 49
+    },
+    {
+     "description": null,
+     "name": "Prime Filet (9 oz)",
+     "price": 67
+    },
+    {
+     "description": "16 oz",
+     "name": "Wagyu Ribeye",
+     "price": 79
+    },
+    {
+     "description": "8 oz",
+     "name": "Prime Ribeye Cap Steak",
+     "price": 52
+    },
+    {
+     "description": "10 oz",
+     "name": "Wagyu Picanha",
+     "price": 55
+    },
+    {
+     "description": "pistachio-mint chimichurri",
+     "name": "Beet Steak",
+     "price": 18
+    }
+   ],
+   "name": "Steaks"
+  },
+  {
+   "items": [
+    {
+     "description": null,
+     "name": "Steak Sampler",
+     "price": 97
+    },
+    {
+     "description": "20 oz",
+     "name": "Dry-Aged Porterhouse",
+     "price": 104
+    },
+    {
+     "description": "28 oz",
+     "name": "Tomahawk",
+     "price": 124
+    },
+    {
+     "description": "30 oz",
+     "name": "Leg of Lamb",
+     "price": 64
+    }
+   ],
+   "name": "For Two"
+  },
+  {
+   "items": [
+    {
+     "description": "black garlic-roe sauce",
+     "name": "Grilled Local Sea Bass",
+     "price": 34
+    },
+    {
+     "description": "truffled chicken jus",
+     "name": "Jidori Chicken",
+     "price": 35
+    },
+    {
+     "description": "cabernet reduction",
+     "name": "Bison Short Ribs",
+     "price": 32
+    },
+    {
+     "description": "caramelized onions, gruyère, dijonnaise, dill pickle",
+     "name": "Starlite Burger",
+     "price": 17
+    },
+    {
+     "description": "wagyu meatballs, mozzarella, pomodoro",
+     "name": "Meatball Sub",
+     "price": 23
+    },
+    {
+     "description": "spiced fig port reduction",
+     "name": "Dry-Aged Half Duck",
+     "price": 60
+    }
+   ],
+   "name": "Mains"
+  },
+  {
+   "items": [
+    {
+     "description": "Sauce",
+     "name": "Bordelaise",
+     "price": null
+    },
+    {
+     "description": "Sauce",
+     "name": "Zhug",
+     "price": null
+    },
+    {
+     "description": "Sauce",
+     "name": "Creamy Horseradish",
+     "price": null
+    },
+    {
+     "description": "Sauce",
+     "name": "Smoked Tomato Jam",
+     "price": null
+    },
+    {
+     "description": "smoked salt, espelette, garlic & kampot pepper, yuzu chili",
+     "name": "Butters",
+     "price": 4
+    }
+   ],
+   "name": "Sauces & Butters"
+  },
+  {
+   "items": [
+    {
+     "description": "everything butter",
+     "name": "Salted Croissant",
+     "price": 7
+    },
+    {
+     "description": "herbs",
+     "name": "Wagyu Fat Mashed Potatoes",
+     "price": 9
+    },
+    {
+     "description": "aged cheddar, bacon, black truffle, chives",
+     "name": "Twice Baked Potato",
+     "price": 18
+    },
+    {
+     "description": "pickled garlic aioli, herbs",
+     "name": "Fries",
+     "price": 7
+    },
+    {
+     "description": "cheddar, confit onions, chives",
+     "name": "Herb Scalloped Potatoes",
+     "price": 13
+    },
+    {
+     "description": "pepper jack, cheddar, buttered bread crumbs, chives",
+     "name": "Starlite Macaroni and Cheese",
+     "price": 13
+    },
+    {
+     "description": "lemon aioli, crispy shallots, chives",
+     "name": "Roasted Broccoli",
+     "price": 10
+    },
+    {
+     "description": "fried garlic, thai herbs",
+     "name": "Honey Gochujang Carrots",
+     "price": 13
+    },
+    {
+     "description": "ginger-chili oil, mushroom powder",
+     "name": "Roasted Maitake Mushrooms",
+     "price": 18
+    }
+   ],
+   "name": "Sides"
+  },
+  {
+   "items": [
+    {
+     "description": "charred iceberg, buttermilk ranch, heirloom tomatoes, crumbled bacon, pickled red onions, blue cheese",
+     "name": "Grilled Wedge",
+     "price": 16
+    },
+    {
+     "description": "romaine, garlic croutons, grana padano",
+     "name": "Caesar Salad",
+     "price": 14
+    },
+    {
+     "description": "asparagus, avocado, cherry tomatoes, soft boiled egg",
+     "name": "Crab Tempura Louie Salad",
+     "price": 28
+    },
+    {
+     "description": "daily selection, green goddess, pepitas, herbs",
+     "name": "Chef's Vegetable Salad",
+     "price": 14
+    }
+   ],
+   "name": "Salads"
+  },
+  {
+   "items": [
+    {
+     "description": "toffee chip cookies, vanilla ice cream, pistachios",
+     "name": "Starlite Ice Cream Sandwich",
+     "price": 14
+    },
+    {
+     "description": "hazelnut crumble, olive oil, salt",
+     "name": "Chocolate Mousse",
+     "price": 14
+    },
+    {
+     "description": "sour cream frosting, grapefruit gummies",
+     "name": "Honey Cake",
+     "price": 14
+    }
+   ],
+   "name": "Desserts"
+  }
+ ]
+}

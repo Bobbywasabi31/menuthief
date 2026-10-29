@@ -1,0 +1,94 @@
+[
+  {
+    "id": "lucha-html",
+    "name": "Lucha Libre Taco Shop (San Diego)",
+    "kind": "html",
+    "expect": "menu",
+    "acquire_ok": true,
+    "stats": {
+      "chars": 3716,
+      "lines": 160,
+      "price_mentions": 2,
+      "price_density_per_100_lines": 1.2
+    },
+    "menu_links": [
+      "https://www.luchalibretacoshop.com/menu/",
+      "https://www.luchalibretacoshop.com/wp-admin/nav-menus.php",
+      "https://www.luchalibretacoshop.com/menu/#x-main"
+    ],
+    "items": null
+  },
+  {
+    "id": "solare-pdf",
+    "name": "Solare Ristorante (San Diego)",
+    "kind": "pdf",
+    "expect": "menu",
+    "acquire_ok": true,
+    "stats": {
+      "chars": 17279,
+      "lines": 376,
+      "price_mentions": 4,
+      "price_density_per_100_lines": 1.1
+    },
+    "menu_links": [],
+    "items": null
+  },
+  {
+    "id": "solare-home",
+    "name": "Solare Ristorante \u2014 homepage start",
+    "kind": "homepage",
+    "expect": "menu",
+    "followed_url": "https://solarelounge.com/docs/Solare-Dine-In-Menu.pdf",
+    "acquire_ok": true,
+    "stats": {
+      "chars": 17279,
+      "lines": 376,
+      "price_mentions": 4,
+      "price_density_per_100_lines": 1.1
+    },
+    "menu_links": [
+      "https://solarelounge.com/docs/Solare-Dine-In-Menu.pdf",
+      "http://solarelounge.com/docs/Solare-Cocktails-Wine-and-More-List.pdf",
+      "http://www.solarelounge.com/Solare-Events-Planning.pdf"
+    ],
+    "items": null
+  },
+  {
+    "id": "starlite-photo",
+    "name": "Starlite (San Diego) \u2014 menu as an image",
+    "kind": "photo",
+    "expect": "menu",
+    "acquire_ok": true,
+    "items": null
+  },
+  {
+    "id": "tadokoro-none",
+    "name": "Sushi Tadokoro (San Diego)",
+    "kind": "html",
+    "expect": "none",
+    "acquire_ok": true,
+    "stats": {
+      "chars": 1365,
+      "lines": 35,
+      "price_mentions": 0,
+      "price_density_per_100_lines": 0.0
+    },
+    "menu_links": [],
+    "items": null
+  },
+  {
+    "id": "innout-js",
+    "name": "In-N-Out Burger",
+    "kind": "html",
+    "expect": "menu",
+    "acquire_ok": true,
+    "stats": {
+      "chars": 0,
+      "lines": 0,
+      "price_mentions": 0,
+      "price_density_per_100_lines": 0.0
+    },
+    "menu_links": [],
+    "items": null
+  }
+]
