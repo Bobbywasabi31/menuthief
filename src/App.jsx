@@ -5,7 +5,7 @@ import {
 } from './places'
 import {
   BUNDLED_MENUS, countItems, fetchMenuForPlace, loadCachedMenu, loadSettings,
-  saveCachedMenu, saveSettings, structureMenuText,
+  saveCachedMenu, saveSettings, structureFromText,
 } from './menus'
 import {
   formatQty, generateRecipe, loadBundledRecipe, loadCachedRecipe,
@@ -104,9 +104,12 @@ export default function App() {
     const map = L.map(mapEl.current, { zoomControl: false }).setView(
       [HOME.lat, HOME.lon], HOME.zoom)
     L.control.zoom({ position: 'bottomright' }).addTo(map)
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // CARTO Voyager basemap: same OpenStreetMap data, modern styling
+    // (the stock OSM tile style Alex flagged as looking "really old").
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 20,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(map)
     mapRef.current = map
     loadPlaces(map)
@@ -209,11 +212,6 @@ export default function App() {
 
   async function runFetch() {
     if (!selected) return
-    if (!settings.apiKey) {
-      setMenuError('Add your AI key first (⚙ settings) — structuring a menu needs it. Your key never leaves this browser except to your AI provider.')
-      setMenuPhase('error')
-      return
-    }
     setMenuPhase('loading')
     setMenuError('')
     try {
@@ -239,15 +237,10 @@ export default function App() {
 
   async function runPaste() {
     if (!selected || !pasteText.trim()) return
-    if (!settings.apiKey) {
-      setMenuError('Add your AI key first (⚙ settings) — pasted text still needs it for structuring.')
-      setMenuPhase('error')
-      return
-    }
     setMenuPhase('loading')
-    setMenuNote('Structuring the pasted menu with your AI key…')
+    setMenuNote(settings.apiKey ? 'Structuring the pasted menu with your AI key…' : 'Reading the pasted menu…')
     try {
-      const structured = await structureMenuText(pasteText, settings, {
+      const structured = await structureFromText(pasteText, settings, {
         placeName: selected.name, source: 'user_paste', sourceUrl: null,
       })
       saveCachedMenu(selected.id, structured)
@@ -502,8 +495,9 @@ export default function App() {
               <p className="menu-hint">
                 {menu?.source_url
                   ? <>Checked <a href={menu.source_url} target="_blank" rel="noreferrer">its website</a>
-                    {menu.fetched_at ? <> on {formatDate(menu.fetched_at)}</> : ''} — nothing menu-like is published there.
-                    Some places (omakase counters especially) simply don’t post one.</>
+                    {menu.fetched_at ? <> on {formatDate(menu.fetched_at)}</> : ''} — nothing menu-like we could read there
+                    (checked its pages and the usual menu paths). Some places (omakase counters especially)
+                    simply don’t post one; an AI key in ⚙ sometimes reads pages the auto-puller can’t.</>
                   : 'This place does not publish a menu we can read.'}
               </p>
               <div className="sheet-actions">
@@ -519,6 +513,7 @@ export default function App() {
             <div className="menu-body">
               <div className="menu-meta">
                 {itemCount} dishes
+                {menu.engine === 'heuristic' && <> · auto-pulled from the website (no AI — an AI key in ⚙ gives cleaner results)</>}
                 {menuNote ? <> · {menuNote}</> : null}
                 {menu.fetched_at ? <> · fetched {formatDate(menu.fetched_at)}</> : null}
                 {menu.source_url
@@ -687,8 +682,10 @@ export default function App() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>AI settings</h3>
             <p className="menu-hint">
-              MenuThief uses your own AI key to turn a restaurant’s menu page into a
-              structured menu. The key is stored only in this browser.
+              Menus are pulled straight from each restaurant’s website and parsed
+              automatically — no key needed. Adding your own AI key makes the
+              parsing cleaner and unlocks recipe generation. The key is stored
+              only in this browser.
             </p>
             <label className="field">
               <span>Endpoint (OpenAI-compatible)</span>
@@ -719,7 +716,7 @@ export default function App() {
               <button className="btn btn-primary" onClick={() => setShowSettings(false)}>Done</button>
             </div>
             <div className="modal-foot">
-              MenuThief 1.1 · Places and map © OpenStreetMap contributors ·
+              MenuThief 1.2 · Places and map © OpenStreetMap contributors, © CARTO ·
               Menus belong to their restaurants — recipes here are home versions
               inspired by them, never the originals.
             </div>

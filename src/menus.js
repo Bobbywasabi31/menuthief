@@ -307,38 +307,299 @@ export async function structureMenuText(menuText, settings, { placeName, source,
 }
 
 // ---------------------------------------------------------------------------
-// The full fetch flow for a place with a website. Returns one of:
+// Heuristic parser — the no-key menu puller (added v1.2.0 at Alex's
+// request: "add menu pulling from the websites"). Reads cleaned page text
+// and extracts sections / dishes / prices with layout rules instead of an
+// LLM. Rougher than the AI path — prices can land on the wrong line on
+// exotic layouts — so its menus are labeled engine:'heuristic' and the UI
+// says so. Guarded by a confidence rule so homepages don't become "menus":
+// at least 3 priced dishes, or 6+ dishes with a named section and a price.
+// ---------------------------------------------------------------------------
+
+const SKIP_LINE_RES = [
+  /^(home|about|contact|reservations?|order online|order now|book now|call now|view menu|see (the )?menu|learn more|get started|limited time item|\(opens in a new tab\))$/i,
+  /^(home|about|contact|reservations?|order online|gift cards?|private (events|dining)|catering|careers|press|gallery|events?)$/i,
+  /\b(opening hours|hours of operation|find us|get directions|book a table|sign up|newsletter|all rights reserved)\b/i,
+  /\b(mon|tues|wednes|thurs|fri|satur|sun)day\b.*\b(am|pm)\b/i,
+  /\d{3}[-.\s]\d{3}[-.\s]\d{4}/, // phone numbers
+  /^(www\.|https?:)/i,
+]
+
+function isSkipLine(line) {
+  return SKIP_LINE_RES.some((re) => re.test(line))
+}
+
+// Split "Grilled Salmon $24.50" / "Grilled Salmon .... 24" into name+price.
+// Returns null when the trailing number is not a plausible menu price
+// (years, street numbers, counts) — menus are never detected by $ alone.
+export function splitPrice(line) {
+  const m = line.match(/^(.*?)[\s.…·_—–-]*\$?\s*(\d[\d,]*(?:\.\d{1,2})?)\s*$/)
+  if (!m) return null
+  const name = m[1].replace(/[\s.…·_—–-]+$/, '').trim()
+  const token = m[2].replace(/,/g, '')
+  const value = Number(token)
+  if (!name || name.length < 2) return null
+  if (/\d$/.test(name)) return null // we split a longer number in half
+  if (!line.includes('$') && !token.includes('.') && token.length > 2) return null
+  if (!(value >= 1 && value <= 500)) return null
+  return { name, price: value }
+}
+
+// A price alone on a line, allowing the decorations real sites wrap it in
+// ("- 16", "- 16 |", "$14"). Four-digit years can't match (\d{1,3} + anchor).
+const STANDALONE_PRICE_RE = /^[.\s•·-]*\$?\s*(\d{1,3}(?:\.\d{2})?)\s*[.|·•\s-]*$/
+const MARKET_PRICE_RE = /^(.*?)[\s.…·_—–-]*(market price|mp)\s*$/i
+
+function isCapsHeader(line) {
+  return line.length >= 3 && line.length <= 44
+    && /[A-Z]/.test(line) && line === line.toUpperCase()
+    && !line.endsWith('.') && !line.endsWith(',')
+    && line.split(/\s+/).length <= 6
+    && !/\d{4}/.test(line)
+}
+
+function isTitleHeader(lines, i) {
+  const line = lines[i]
+  if (line.length < 3 || line.length > 40) return false
+  if (line.split(/\s+/).length > 5) return false
+  if (line.endsWith('.') || line.endsWith(',')) return false
+  if (!/^[\p{Lu}]/u.test(line)) return false
+  if (/[a-z]{3,}/.test(line.slice(1)) && line !== line.toUpperCase()) {
+    // Title Case: every word capitalised
+    if (!line.split(/\s+/).every((w) => /^[\p{Lu}0-9'&-]/u.test(w))) return false
+  }
+  // A header is only a header if what follows looks like a dish.
+  const next = lines[i + 1] || ''
+  return Boolean(splitPrice(next)) || STANDALONE_PRICE_RE.test(lines[i + 2] || '')
+}
+
+export function parseMenuHeuristic(text) {
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
+  const sections = [{ name: 'Menu', items: [] }]
+  let current = sections[0]
+  let pendingName = null
+
+  const pushItem = (item) => {
+    const dup = current.items.some(
+      (it) => it.name.toLowerCase() === item.name.toLowerCase() && it.price === item.price)
+    if (!dup) current.items.push(item)
+  }
+
+  // Collect up to 3 description lines following index i; returns [desc, used].
+  const collectDesc = (i) => {
+    const parts = []
+    let j = i
+    while (j < lines.length && parts.length < 3) {
+      const l = lines[j]
+      if (isSkipLine(l) || splitPrice(l) || STANDALONE_PRICE_RE.test(l)) break
+      if (MARKET_PRICE_RE.test(l) && l.length > 12) break // next dish (market price)
+      if (isCapsHeader(l)) break
+      if (l.length > 210) break
+      // A line followed by a standalone price is a dish name, not prose.
+      if (STANDALONE_PRICE_RE.test(lines[j + 1] || '')) break
+      // A short name-like line followed by a longer plain line starts the
+      // next priceless dish (name + description), not more description.
+      const after = lines[j + 1] || ''
+      if (l.length <= 64 && l.split(/\s+/).length <= 7 && /^[\p{Lu}]/u.test(l)
+        && !/[.,;:]$/.test(l)
+        && after.length > l.length && after.length <= 210
+        && !splitPrice(after) && !isCapsHeader(after)) break
+      parts.push(l)
+      j++
+      if (parts.join(' ').length > 240) break
+    }
+    return [parts.length ? parts.join(' ') : null, j - i]
+  }
+
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+    if (isSkipLine(line)) { i++; continue }
+
+    // Price on its own line completes a pending dish name.
+    const solo = line.match(STANDALONE_PRICE_RE)
+    if (solo && pendingName) {
+      const [desc, used] = collectDesc(i + 1)
+      pushItem({ name: pendingName, description: desc, price: Number(solo[1]) })
+      pendingName = null
+      i += 1 + used
+      continue
+    }
+    if (solo) { i++; continue } // stray price with no dish: ignore
+
+    // "Name ....... $24" / "Name 24.50" / "Name — market price"
+    const mp = line.match(MARKET_PRICE_RE)
+    const priced = splitPrice(line)
+    if (priced || (mp && mp[1].trim().length >= 2)) {
+      const name = (priced ? priced.name : mp[1].replace(/[\s.…·_—–-]+$/, '').trim())
+      const [desc, used] = collectDesc(i + 1)
+      pushItem({ name, description: desc, price: priced ? priced.price : null })
+      pendingName = null
+      i += 1 + used
+      continue
+    }
+
+    // A caps line whose price sits on the next line is a dish, not a
+    // header ("POBLANO CALI" / "- 17" on Lucha Libre's real menu page).
+    if (isCapsHeader(line) && STANDALONE_PRICE_RE.test(lines[i + 1] || '')) {
+      pendingName = line
+      i++
+      continue
+    }
+
+    // Section headers (caps, or title-case with a dish right after).
+    if (isCapsHeader(line) || isTitleHeader(lines, i)) {
+      const name = line.replace(/\s+/g, ' ')
+      if (!sections.some((s) => s.name.toLowerCase() === name.toLowerCase())) {
+        current = { name, items: [] }
+        sections.push(current)
+      } else {
+        current = sections.find((s) => s.name.toLowerCase() === name.toLowerCase())
+      }
+      pendingName = null
+      i++
+      continue
+    }
+
+    // Dish name whose price sits on the next line.
+    if (line.length <= 70 && STANDALONE_PRICE_RE.test(lines[i + 1] || '')) {
+      pendingName = line
+      i++
+      continue
+    }
+
+    // Priceless dish (name line + longer description line), only once the
+    // current section already has a priced dish anchoring it as menu-like.
+    const next = lines[i + 1] || ''
+    if (line.length <= 64 && next.length > line.length && next.length <= 210
+      && !splitPrice(next) && !isCapsHeader(next) && !isSkipLine(next)
+      && current.items.some((it) => it.price !== null)) {
+      pushItem({ name: line, description: next, price: null })
+      i += 2
+      continue
+    }
+
+    i++
+  }
+
+  const kept = sections.filter((s) => s.items.length > 0)
+  const all = kept.flatMap((s) => s.items)
+  const pricedCount = all.filter((it) => it.price !== null).length
+  const namedSections = kept.filter((s) => s.name !== 'Menu').length
+  const isMenu = pricedCount >= 3 || (all.length >= 6 && pricedCount >= 1 && namedSections >= 1)
+  return { is_menu: isMenu, sections: isMenu ? kept : [] }
+}
+
+// Structure already-fetched text: the user's AI key when one is saved
+// (best quality), otherwise the built-in heuristic puller — pulling menus
+// from websites must not require a key. LLM transport/validation failures
+// also fall back to the heuristic before giving up.
+export async function structureFromText(text, settings, { placeName, source, sourceUrl }) {
+  if (settings.apiKey) {
+    try {
+      return await structureMenuText(text, settings, { placeName, source, sourceUrl })
+    } catch (err) {
+      if (err.message === 'NO_KEY') throw err
+      // fall through to the heuristic
+    }
+  }
+  const parsed = parseMenuHeuristic(text)
+  return {
+    place_name: placeName,
+    source,
+    source_url: sourceUrl,
+    fetched_at: new Date().toISOString(),
+    engine: 'heuristic',
+    is_menu: parsed.is_menu,
+    sections: parsed.sections,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// The full fetch flow for a place with a website. Discovers the menu page
+// from the homepage's links, probes the common menu paths when no link is
+// published, then structures the page: AI key if saved, else the built-in
+// heuristic puller. Returns one of:
 //   { kind: 'menu', menu }      — structured (caller caches it)
-//   { kind: 'nomenu', menu }    — site checked, no menu published
-//   { kind: 'pdf', url }        — menu exists but is a PDF (not parsed in M2)
+//   { kind: 'nomenu', menu }    — site checked, no readable menu there
+//   { kind: 'pdf', url }        — menu exists but is a PDF (not parsed yet)
 // Throws on transport failure; the UI offers retry / paste instead.
 // ---------------------------------------------------------------------------
+
+const FAST_RELAYS = [RELAYS[0], RELAYS[1]] // direct, then allorigins
+
+async function fetchPageFast(url, timeoutMs = 9000) {
+  for (const wrap of FAST_RELAYS) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const resp = await fetch(wrap(url), { signal: controller.signal })
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const text = await resp.text()
+      if (!text || text.length < 40) throw new Error('empty response')
+      return text
+    } catch { /* try the next relay */ } finally {
+      clearTimeout(timer)
+    }
+  }
+  throw new Error('unreachable')
+}
+
+const MENU_PATH_PROBES = ['/menu', '/menus', '/menu.html', '/food-menu', '/dinner-menu', '/lunch-menu', '/eat']
 
 export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
   if (!place.website) throw new Error('NO_WEBSITE')
   onStatus('Reading the restaurant’s website…')
   const homeHtml = await fetchPage(place.website)
+  if (homeHtml.startsWith('%PDF')) return { kind: 'pdf', url: place.website }
   const candidates = menuLinkCandidates(extractLinks(homeHtml, place.website), place.website)
 
-  // A homepage that is itself the menu (common for one-page sites): try it
-  // when no better candidate exists.
-  const target = candidates[0]?.href || null
-  if (target && isPdfUrl(target)) return { kind: 'pdf', url: target }
+  // Pages to try, best first: linked menu pages (up to 2), then the
+  // homepage itself (one-page sites often put the menu on it).
+  const pages = []
+  for (const c of candidates.slice(0, 2)) pages.push(c.href)
+  pages.push(place.website)
 
-  let text
-  let sourceUrl
-  if (target) {
-    onStatus('Found a menu page — reading it…')
-    text = htmlToText(await fetchPage(target))
-    sourceUrl = target
-  } else {
-    text = htmlToText(homeHtml)
-    sourceUrl = place.website
+  for (const url of pages) {
+    if (isPdfUrl(url)) return { kind: 'pdf', url }
+    let html
+    try {
+      if (url !== place.website) onStatus('Found a menu page — reading it…')
+      html = url === place.website && pages.length > 1 ? null : await fetchPage(url)
+      if (html === null) continue // homepage handled after the linked pages
+    } catch { continue }
+    if (html.startsWith('%PDF')) return { kind: 'pdf', url }
+    onStatus(settings.apiKey ? 'Structuring the menu with your AI key…' : 'Pulling the menu from the website…')
+    const menu = await structureFromText(htmlToText(html), settings, {
+      placeName: place.name, source: 'website', sourceUrl: url,
+    })
+    if (menu.is_menu) return { kind: 'menu', menu }
   }
 
-  onStatus('Structuring the menu with your AI key…')
-  const menu = await structureMenuText(text, settings, {
-    placeName: place.name, source: 'website', sourceUrl,
+  // No published menu link panned out — probe the paths restaurants
+  // almost always use, in case the menu page just isn't linked.
+  const origin = new URL(place.website).origin
+  for (const path of MENU_PATH_PROBES) {
+    const url = origin + path
+    if (pages.includes(url)) continue
+    let html
+    try {
+      onStatus(`Checking ${path} for a menu…`)
+      html = await fetchPageFast(url)
+    } catch { continue }
+    if (html.startsWith('%PDF')) return { kind: 'pdf', url }
+    const linked = menuLinkCandidates(extractLinks(html, url), url)
+    if (linked[0] && isPdfUrl(linked[0].href)) return { kind: 'pdf', url: linked[0].href }
+    const menu = await structureFromText(htmlToText(html), settings, {
+      placeName: place.name, source: 'website', sourceUrl: url,
+    })
+    if (menu.is_menu) return { kind: 'menu', menu }
+  }
+
+  // Finally, the homepage's own text (one-page sites).
+  onStatus(settings.apiKey ? 'Structuring the menu with your AI key…' : 'Pulling the menu from the website…')
+  const menu = await structureFromText(htmlToText(homeHtml), settings, {
+    placeName: place.name, source: 'website', sourceUrl: place.website,
   })
   return menu.is_menu ? { kind: 'menu', menu } : { kind: 'nomenu', menu }
 }

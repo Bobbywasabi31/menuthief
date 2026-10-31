@@ -1,7 +1,7 @@
 // Logic checks for the M2 menu layer (run: node test-menus.mjs)
 import {
   BUNDLED_MENUS, TEXT_MENU_PROMPT, countItems, extractLinks, htmlToText,
-  menuLinkCandidates, validateMenu,
+  menuLinkCandidates, parseMenuHeuristic, splitPrice, validateMenu,
 } from './src/menus.js'
 
 let failures = 0
@@ -67,6 +67,84 @@ const cleaned = htmlToText(messy)
 check('htmlToText strips scripts/styles/tags',
   cleaned.includes('Calamari 14') && !cleaned.includes('var a=1') && !cleaned.includes('<'))
 check('htmlToText drops blank lines', !cleaned.split('\n').some((l) => l.trim() === ''))
+
+// --- Heuristic puller (v1.2.0: website menu pulling without an AI key) ---
+check('splitPrice reads a $-decimal price', splitPrice('Grilled Salmon $24.50')?.price === 24.5)
+check('splitPrice reads a dotted-leader bare price', splitPrice('Tomato Soup .... 9')?.price === 9)
+check('splitPrice ignores a year', splitPrice('Established 2024') === null)
+check('splitPrice ignores a street number', splitPrice('2820 Roosevelt Rd') === null)
+
+const menuText = [
+  'STARTERS',
+  'Crispy Calamari $14',
+  'lemon aioli, marinara',
+  'Tomato Basil Soup',
+  '9',
+  'MAINS',
+  'Grilled Salmon $28.50',
+  'charred lemon, herbs',
+  'Ribeye Steak — market price',
+  'dry aged in house',
+  'Margherita Pizza',
+  'san marzano tomato, mozzarella, basil',
+  'Tiramisu $11',
+  'espresso-soaked ladyfingers',
+].join('\n')
+const pulled = parseMenuHeuristic(menuText)
+check('heuristic recognises a real menu', pulled.is_menu === true)
+check('heuristic output passes the schema validator', validateMenu(pulled).length === 0)
+check('heuristic finds both caps sections',
+  pulled.sections.map((s) => s.name).join('|') === 'STARTERS|MAINS')
+const pulledItems = pulled.sections.flatMap((s) => s.items)
+check('heuristic pulls 6 dishes', pulledItems.length === 6)
+check('trailing-price dish parsed with description',
+  pulledItems.find((i) => i.name === 'Crispy Calamari')?.price === 14
+  && pulledItems.find((i) => i.name === 'Crispy Calamari')?.description?.includes('aioli'))
+check('price-on-next-line dish parsed',
+  pulledItems.find((i) => i.name === 'Tomato Basil Soup')?.price === 9)
+check('market price dish kept with null price',
+  pulledItems.find((i) => i.name === 'Ribeye Steak')?.price === null)
+check('priceless dish after a priced anchor keeps its description',
+  pulledItems.find((i) => i.name === 'Margherita Pizza')?.description?.includes('mozzarella'))
+
+// Layouts measured on Lucha Libre's real menu page (2026-10-31): decorated
+// price lines ("- 16 |") and a caps dish name with its price on the next line.
+const luchaText = [
+  'CALI BURRITOS',
+  'CLASSIC CALI',
+  'Chicken',
+  '- 16   |',
+  'Pork Adobada',
+  '- 16   |',
+  'Steak',
+  '- 18',
+  'Fresh Fries, Sour Cream, Pico de Gallo & Jack Cheese',
+  'POBLANO CALI',
+  '- 17',
+].join('\n')
+const lucha = parseMenuHeuristic(luchaText)
+const luchaItems = lucha.sections.flatMap((s) => s.items)
+check('decorated price lines parse (Lucha layout)', lucha.is_menu === true && luchaItems.length === 4)
+check('variant-style dishes keep their prices',
+  luchaItems.find((i) => i.name === 'Chicken')?.price === 16
+  && luchaItems.find((i) => i.name === 'Steak')?.price === 18)
+check('caps dish with next-line price is a dish, not a section',
+  luchaItems.find((i) => i.name === 'POBLANO CALI')?.price === 17
+  && !lucha.sections.some((s) => s.name === 'POBLANO CALI'))
+
+const homeText = [
+  'Welcome to Bella Notte',
+  'A neighborhood Italian kitchen in the heart of the city',
+  '2820 Roosevelt Rd, San Diego',
+  'Monday - Friday 11am - 10pm',
+  'Call us at 619-555-0142',
+  'Book a table for your next celebration',
+  'Gift cards available in store',
+  'Follow us for daily specials and events',
+].join('\n')
+const notMenu = parseMenuHeuristic(homeText)
+check('heuristic refuses homepage text (no invented menu)',
+  notMenu.is_menu === false && notMenu.sections.length === 0)
 
 console.log(failures === 0 ? '\nALL CHECKS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures ? 1 : 0)

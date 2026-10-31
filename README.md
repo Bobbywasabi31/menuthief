@@ -22,13 +22,17 @@ A food-only map: every pin is somewhere to eat. Tap a place to see its
 
 1. **Map** — food places from OpenStreetMap via the Overpass API
    (restaurants, cafés, fast food, bakeries, bars & pubs, dessert),
-   filtered by category. No Google Places: its API doesn't return menu
+   filtered by category, on a CARTO Voyager basemap (same OSM data,
+   modern styling). No Google Places: its API doesn't return menu
    items anyway.
-2. **Menu** — tapping a place runs the menu pipeline in the browser:
-   find the menu link on the restaurant's *own* site (delivery platforms
-   are excluded as a rule), fetch the page, structure it into a strict
-   schema with an LLM, validate, and cache it on-device. Every menu
-   carries provenance: source URL + fetch date.
+2. **Menu** — tapping a place pulls the menu from the restaurant's
+   *own* website in the browser: find the menu link (delivery platforms
+   are excluded as a rule), probe the usual menu paths (`/menu`,
+   `/menus`, …) if none is linked, fetch the page, and structure it
+   into a strict schema — with the built-in parser when no AI key is
+   saved (labeled "auto-pulled"), or your own AI key for cleaner
+   results. Validated against the schema and cached on-device. Every
+   menu carries provenance: source URL + fetch date.
 3. **Recipe** — tapping a dish generates a home version of it, always
    labeled *inspired by* the dish — never claimed to be the restaurant's
    own recipe. Servings scale ½×–3×; recipes cache per place + dish.
@@ -39,13 +43,14 @@ sample places around Liberty Station, San Diego — visibly labeled
 recipes are bundled (Solare Ristorante, Starlite), including an honest
 no-menu case (Sushi Tadokoro, which publishes none).
 
-## Bring your own key
+## Bring your own key (optional)
 
-Structuring menus and writing recipes uses an OpenAI-compatible chat
-endpoint with **your** key (⚙ in the app). The key is stored only in
-your browser's localStorage and sent only to your provider. Point the
-endpoint at a local Ollama (`http://localhost:11434/v1`) and no key is
-needed at all.
+Menus pull and parse with **no key at all**. An AI key (⚙ in the app)
+makes menu parsing cleaner and is required to *generate* recipes: it
+uses an OpenAI-compatible chat endpoint with **your** key, stored only
+in your browser's localStorage and sent only to your provider. Point
+the endpoint at a local Ollama (`http://localhost:11434/v1`) and no
+key is needed there either.
 
 Known limits: PDF menus are detected but not parsed in the browser yet;
 JS-rendered chain menus (e.g. In-N-Out) need a headless-render fallback
