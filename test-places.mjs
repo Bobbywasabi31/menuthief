@@ -1,7 +1,7 @@
 // Logic checks for the M1 data layer (run: node test-places.mjs)
 import {
   CATEGORIES, SEED_PLACES, buildQuery, categoryOf, fetchPlaces, padBounds,
-  readPlacesCache, writePlacesCache, ENDPOINTS,
+  readPlacesCache, writePlacesCache, ENDPOINTS, lastFetchReport,
 } from './src/places.js'
 
 let failures = 0
@@ -82,6 +82,33 @@ check('seed places are marked as seed (never passed off as live)',
   }
   const got = await fetchPlaces(bb, 5000)
   check('race: fast empty does not beat slower real data', got.length === 1 && got[0].name.includes('Lorna'))
+
+  // Judgment: a healthy answer (>= 3) resolves immediately, without
+  // waiting for a mirror that never answers.
+  const many = [1, 2, 3, 4, 5].map((n) => ({ ...el, id: n, tags: { name: `Place ${n}`, amenity: 'cafe' } }))
+  globalThis.fetch = (url) => {
+    if (url.includes('overpass-api.de')) return respond(many, 10)
+    if (url.includes('kumi')) return new Promise(() => {}) // hangs forever
+    return Promise.reject(new Error('stubbed outage'))
+  }
+  const t1 = Date.now()
+  const gotFast = await fetchPlaces(bb, 30000)
+  check('race: healthy answer wins immediately (no waiting on hung mirrors)',
+    gotFast.length === 5 && Date.now() - t1 < 1000)
+
+  // Judgment: a THIN answer (1-2) is only a candidate — a fuller set
+  // from a slower mirror beats it (partial-timeout trickle guard).
+  const six = [1, 2, 3, 4, 5, 6].map((n) => ({ ...el, id: 100 + n, tags: { name: `Full ${n}`, amenity: 'restaurant' } }))
+  globalThis.fetch = (url) => {
+    if (url.includes('overpass-api.de')) return respond([el], 10) // thin, fast
+    if (url.includes('kumi')) return respond(six, 80) // full, slower
+    return Promise.reject(new Error('stubbed outage'))
+  }
+  const gotFull = await fetchPlaces(bb, 5000)
+  check('race: fuller set beats a thin fast one', gotFull.length === 6)
+  check('diagnostics recorded every mirror outcome',
+    lastFetchReport.outcomes.length === ENDPOINTS.length
+    && lastFetchReport.outcomes.every((o) => o.status === 'ok' || o.status === 'error'))
 
   globalThis.fetch = () => respond([], 5)
   check('race: unanimous empty resolves empty', (await fetchPlaces(bb, 5000)).length === 0)

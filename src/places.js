@@ -59,7 +59,18 @@ export const ENDPOINTS = [
   'https://overpass.nchc.org.tw/api/interpreter',
   'https://overpass.osm.ch/api/interpreter',
   'https://overpass.private.coffee/api/interpreter',
+  'https://overpass.samm-it.nl/api/interpreter',
 ]
+
+// Diagnostics for the most recent fetchPlaces call: which mirrors
+// answered, with how many places, how fast, or how they failed. The
+// Settings sheet renders this so a phone screenshot shows exactly
+// what the device experienced (added after the 2026-10-31 "0 places"
+// hunt, where the server-side truth — 120+ mapped places in Alex's
+// neighborhood — proved the failure was in the fetch path, not OSM).
+export const lastFetchReport = { at: null, outcomes: [] }
+
+const hostOf = (url) => url.replace('https://', '').split('/')[0]
 
 function normalizeElement(el) {
   const tags = el.tags || {}
@@ -104,29 +115,47 @@ async function fetchFromEndpoint(endpoint, query, timeoutMs) {
   }
 }
 
-// Races every endpoint in parallel. The first NON-EMPTY answer wins.
-// Why not first-answer-wins: some mirrors reply fast with an empty
-// result set (partial/stale extracts) — on Alex's phone (2026-10-31)
-// a fast empty beat the real data and the app reported "0 places" in
-// a neighborhood full of restaurants. An empty result is trusted
-// only when every responding mirror agrees on it.
-// Throws only if ALL endpoints fail.
+// Races every endpoint in parallel, with judgment:
+// - A healthy answer (>= 3 places) wins immediately.
+// - A thin answer (1–2 places) is held as a candidate: a mirror that
+//   hit its server-side timeout can trickle back a partial set, so
+//   the largest set wins once every mirror has settled.
+// - An empty answer is believed only when nothing better arrives —
+//   some mirrors answer fast with empty/partial extracts, and on
+//   Alex's phone (2026-10-31) a fast empty beat the real data and
+//   the app reported "0 places" amid 120+ mapped restaurants.
+// Throws only if ALL endpoints fail. Every outcome is recorded in
+// lastFetchReport for the Settings diagnostics.
 export async function fetchPlaces(bounds, timeoutMs = 20000) {
   const query = buildQuery(bounds)
-  const attempts = ENDPOINTS.map((ep) => fetchFromEndpoint(ep, query, timeoutMs))
+  lastFetchReport.at = new Date().toISOString()
+  lastFetchReport.outcomes = ENDPOINTS.map((ep) => ({ host: hostOf(ep), status: 'pending', ms: null, detail: '' }))
+  const attempts = ENDPOINTS.map((ep, i) => {
+    const t0 = Date.now()
+    return fetchFromEndpoint(ep, query, timeoutMs).then(
+      (places) => {
+        lastFetchReport.outcomes[i] = { host: hostOf(ep), status: 'ok', ms: Date.now() - t0, detail: `${places.length} places` }
+        return places
+      },
+      (err) => {
+        lastFetchReport.outcomes[i] = { host: hostOf(ep), status: 'error', ms: Date.now() - t0, detail: err.message }
+        throw err
+      },
+    )
+  })
   return new Promise((resolve, reject) => {
     let settled = 0
-    let emptyResult = null
+    let best = null
     const errors = []
     const done = () => {
-      if (emptyResult) resolve(emptyResult)
+      if (best) resolve(best)
       else reject(new Error('All Overpass endpoints failed: ' + errors.map((e) => e.message).join(' | ')))
     }
     attempts.forEach((p) => p.then(
       (places) => {
-        if (places.length > 0) resolve(places)
+        if (places.length >= 3) resolve(places)
         else {
-          emptyResult = places
+          if (!best || places.length > best.length) best = places
           if (++settled === attempts.length) done()
         }
       },

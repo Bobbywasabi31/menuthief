@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import {
-  CATEGORIES, SEED_PLACES, categoryMeta, fetchPlaces, padBounds, readPlacesCache, writePlacesCache,
+  CATEGORIES, SEED_PLACES, categoryMeta, fetchPlaces, lastFetchReport, padBounds, readPlacesCache, writePlacesCache,
 } from './places'
 import {
   BUNDLED_MENUS, countItems, fetchMenuForPlace, loadCachedMenu, loadSettings,
@@ -15,6 +15,24 @@ import {
 // Default view: Liberty Station / Point Loma, San Diego — the M0 test area.
 const HOME = { lat: 32.738, lon: -117.198, zoom: 13 }
 const MIN_ZOOM_FOR_DATA = 13
+
+// Must match the `menuthief-build:` marker in index.html. On load the
+// app re-fetches its own page (no-store) and compares markers: if the
+// server has a newer build than the one running, it reloads once.
+// This kills the stale-tab failure mode — a phone tab restored from
+// memory can run days-old code through several shipped fixes
+// (exactly what muddied the 2026-10-31 places hunt).
+const APP_BUILD = '1.2.5'
+
+// One-line summary of the last places fetch for the empty-state
+// notice and the Settings diagnostics (from lastFetchReport).
+function fetchSummary() {
+  const o = lastFetchReport.outcomes
+  if (!o.length) return ''
+  const ok = o.filter((x) => x.status === 'ok').length
+  const err = o.filter((x) => x.status === 'error').length
+  return `checked ${o.length} sources: ${ok} answered, ${err} unreachable (details in ⚙ Settings)`
+}
 
 function formatPrice(n) {
   if (n === null || n === undefined) return ''
@@ -96,7 +114,9 @@ export default function App() {
       writePlacesCache(bounds, found)
       setPlaces(found)
       setStatus('live')
-      setNotice(found.length === 0 ? 'No food places mapped in this area yet' : '')
+      setNotice(found.length === 0
+        ? 'No food places mapped in this area yet — ' + fetchSummary()
+        : '')
     } catch (err) {
       console.warn(err)
       if (cached?.length) {
@@ -112,6 +132,22 @@ export default function App() {
       }
     }
   }
+
+  // Stale-build self-refresh (once): compare the running build marker
+  // against the one the server currently serves.
+  useEffect(() => {
+    if (sessionStorage.getItem('menuthief-reloaded-for-build') === APP_BUILD) return
+    fetch(location.href, { cache: 'no-store' })
+      .then((r) => r.text())
+      .then((html) => {
+        const served = html.match(/menuthief-build:\s*([\d.]+)/)?.[1]
+        if (served && served !== APP_BUILD) {
+          sessionStorage.setItem('menuthief-reloaded-for-build', APP_BUILD)
+          location.replace(location.pathname + '?build=' + served)
+        }
+      })
+      .catch(() => { /* offline etc. — self-refresh is best-effort */ })
+  }, [])
 
   // Map setup (once)
   useEffect(() => {
@@ -731,8 +767,24 @@ export default function App() {
             <div className="sheet-actions">
               <button className="btn btn-primary" onClick={() => setShowSettings(false)}>Done</button>
             </div>
+            <div className="diag-box">
+              <div className="diag-title">Diagnostics — build {APP_BUILD}</div>
+              {lastFetchReport.at ? (
+                <div className="diag-lines">
+                  <div>Last places fetch: {new Date(lastFetchReport.at).toLocaleTimeString()}</div>
+                  {lastFetchReport.outcomes.map((o) => (
+                    <div key={o.host}>
+                      {o.status === 'ok' ? '✓' : o.status === 'error' ? '✗' : '…'} {o.host}
+                      {o.ms != null ? ` · ${o.ms}ms` : ''}{o.detail ? ` · ${o.detail}` : ''}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="diag-lines">No places fetch yet this session.</div>
+              )}
+            </div>
             <div className="modal-foot">
-              MenuThief 1.2 · Places © OpenStreetMap contributors · Map tiles © Esri ·
+              MenuThief {APP_BUILD} · Places © OpenStreetMap contributors · Map tiles © Esri ·
               Menus belong to their restaurants — recipes here are home versions
               inspired by them, never the originals.
             </div>
