@@ -176,6 +176,16 @@ export function isPdfUrl(url) {
   return url.toLowerCase().split('?')[0].endsWith('.pdf')
 }
 
+// A PDF only counts as the menu fallback when it actually looks like one
+// (menu in the file name or the link text). Real sites link plenty of
+// other PDFs — Hodad's jukebox song list, an industry marketing code —
+// and presenting those as "the menu" would be a false claim.
+export function pickPdfFallback(candidates) {
+  const pdf = (candidates || []).find(
+    (c) => isPdfUrl(c.href) && (/menu/i.test(c.href) || /menu/i.test(c.label || '')))
+  return pdf?.href || null
+}
+
 // ---------------------------------------------------------------------------
 // Page text — port of M0's cleaned-text reduction.
 // ---------------------------------------------------------------------------
@@ -554,21 +564,22 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
   if (homeHtml.startsWith('%PDF')) return { kind: 'pdf', url: place.website }
   const candidates = menuLinkCandidates(extractLinks(homeHtml, place.website), place.website)
 
-  // Pages to try, best first: linked menu pages (up to 2), then the
-  // homepage itself (one-page sites often put the menu on it).
-  const pages = []
-  for (const c of candidates.slice(0, 2)) pages.push(c.href)
-  pages.push(place.website)
+  // HTML menu pages are tried BEFORE any PDF candidate. The M0 ranking
+  // gives PDFs a bonus (a PDF is often the menu — Solare), but real-site
+  // data (2026-10-31) showed stray PDFs winning by that bonus: Stone
+  // Brewing's homepage links an industry marketing-code PDF and Hodad's
+  // a jukebox song list, both ranked above their actual menu pages.
+  // So a menu-like PDF (pickPdfFallback) is remembered, not taken on sight.
+  let pdfFallback = pickPdfFallback(candidates)
+  const pages = candidates.filter((c) => !isPdfUrl(c.href)).slice(0, 2).map((c) => c.href)
 
   for (const url of pages) {
-    if (isPdfUrl(url)) return { kind: 'pdf', url }
     let html
     try {
-      if (url !== place.website) onStatus('Found a menu page — reading it…')
-      html = url === place.website && pages.length > 1 ? null : await fetchPage(url)
-      if (html === null) continue // homepage handled after the linked pages
+      onStatus('Found a menu page — reading it…')
+      html = await fetchPage(url)
     } catch { continue }
-    if (html.startsWith('%PDF')) return { kind: 'pdf', url }
+    if (html.startsWith('%PDF')) { if (/menu/i.test(url)) pdfFallback = pdfFallback || url; continue }
     onStatus(settings.apiKey ? 'Structuring the menu with your AI key…' : 'Pulling the menu from the website…')
     const menu = await structureFromText(htmlToText(html), settings, {
       placeName: place.name, source: 'website', sourceUrl: url,
@@ -587,9 +598,9 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
       onStatus(`Checking ${path} for a menu…`)
       html = await fetchPageFast(url)
     } catch { continue }
-    if (html.startsWith('%PDF')) return { kind: 'pdf', url }
+    if (html.startsWith('%PDF')) { if (/menu/i.test(url)) pdfFallback = pdfFallback || url; continue }
     const linked = menuLinkCandidates(extractLinks(html, url), url)
-    if (linked[0] && isPdfUrl(linked[0].href)) return { kind: 'pdf', url: linked[0].href }
+    if (!pdfFallback) pdfFallback = pickPdfFallback(linked)
     const menu = await structureFromText(htmlToText(html), settings, {
       placeName: place.name, source: 'website', sourceUrl: url,
     })
@@ -601,5 +612,7 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
   const menu = await structureFromText(htmlToText(homeHtml), settings, {
     placeName: place.name, source: 'website', sourceUrl: place.website,
   })
-  return menu.is_menu ? { kind: 'menu', menu } : { kind: 'nomenu', menu }
+  if (menu.is_menu) return { kind: 'menu', menu }
+  if (pdfFallback) return { kind: 'pdf', url: pdfFallback }
+  return { kind: 'nomenu', menu }
 }

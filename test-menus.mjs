@@ -1,7 +1,7 @@
 // Logic checks for the M2 menu layer (run: node test-menus.mjs)
 import {
   BUNDLED_MENUS, TEXT_MENU_PROMPT, countItems, extractLinks, htmlToText,
-  menuLinkCandidates, parseMenuHeuristic, splitPrice, validateMenu,
+  menuLinkCandidates, parseMenuHeuristic, pickPdfFallback, splitPrice, validateMenu,
 } from './src/menus.js'
 
 let failures = 0
@@ -106,6 +106,16 @@ check('market price dish kept with null price',
   pulledItems.find((i) => i.name === 'Ribeye Steak')?.price === null)
 check('priceless dish after a priced anchor keeps its description',
   pulledItems.find((i) => i.name === 'Margherita Pizza')?.description?.includes('mozzarella'))
+
+// PDF fallback discipline (real-data lesson, 2026-10-31): only menu-like
+// PDFs may be presented as a place's menu.
+check('pdf fallback accepts a menu-named PDF',
+  pickPdfFallback([{ href: 'https://x.example/docs/Dine-In-Menu.pdf', label: 'Menu' }])
+    === 'https://x.example/docs/Dine-In-Menu.pdf')
+check('pdf fallback rejects a jukebox song list',
+  pickPdfFallback([{ href: 'https://hodads.example/allsongs.pdf', label: 'Song list' }]) === null)
+check('pdf fallback rejects an unrelated industry PDF',
+  pickPdfFallback([{ href: 'https://assoc.example/Marketing_and_Advertising_Code.pdf', label: 'Code' }]) === null)
 
 // Layouts measured on Lucha Libre's real menu page (2026-10-31): decorated
 // price lines ("- 16 |") and a caps dish name with its price on the next line.

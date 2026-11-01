@@ -1,0 +1,1148 @@
+[
+  {
+    "place_name": "Lucha Libre Taco Shop",
+    "website": "https://www.luchalibretacoshop.com",
+    "fetched_at": "2026-11-01T00:02:09.132Z",
+    "status": "menu",
+    "source_url": "https://www.luchalibretacoshop.com/menu/",
+    "engine": "heuristic",
+    "items": 35,
+    "sections": [
+      "CLASSIC CALI",
+      "BURRITOS",
+      "QUESO TACO",
+      "SPECIALTIES",
+      "CHAMPION FRIES OR NACHOS",
+      "3 ROLLED TACOS"
+    ],
+    "schema_errors": [],
+    "menu": {
+      "place_name": "Lucha Libre Taco Shop",
+      "source": "website",
+      "source_url": "https://www.luchalibretacoshop.com/menu/",
+      "fetched_at": "2026-11-01T00:02:10.550Z",
+      "engine": "heuristic",
+      "is_menu": true,
+      "sections": [
+        {
+          "name": "CLASSIC CALI",
+          "items": [
+            {
+              "name": "Chicken",
+              "description": null,
+              "price": 16
+            },
+            {
+              "name": "Pork Adobada",
+              "description": null,
+              "price": 16
+            },
+            {
+              "name": "Steak",
+              "description": "Fresh Fries, Sour Cream, Pico de Gallo & Jack Cheese",
+              "price": 18
+            },
+            {
+              "name": "POBLANO CALI",
+              "description": "Grilled Chicken, Roasted Poblano Peppers, Jack Cheese, Fresh Fries, Avocado & Creamy Corn Poblano Sauce",
+              "price": 17
+            },
+            {
+              "name": "ADO-HABA PIÑA CALI",
+              "description": "Pork Adobada, Grilled Pineapple, Fresh Fries, Sour Cream, Jack Cheese, Pico de Gallo & Pineapple Habanero Sauce",
+              "price": 17
+            },
+            {
+              "name": "SURFIN' CALIFORNIA BURRITO",
+              "description": "Steak, Shrimp, Fresh Fries, Pico de Gallo, Jack Cheese, Avocado & Secret  Chipotle Sauce",
+              "price": 19
+            },
+            {
+              "name": "BIRRIA CALI",
+              "description": null,
+              "price": 17.5
+            },
+            {
+              "name": "Select Beef Birria or Vegan Birria",
+              "description": "Fresh Fries, Jack Cheese, Onions-Cilantro Mix, Sour Cream & Spicy Salsa Muerta",
+              "price": null
+            },
+            {
+              "name": "PLUCKIN' CALI",
+              "description": "Grilled Chicken, Fresh Fries, Pico de Gallo, Jack Cheese, Avocado & Secret Chipotle Sauce",
+              "price": 16
+            }
+          ]
+        },
+        {
+          "name": "BURRITOS",
+          "items": [
+            {
+              "name": "EL HEFE BURRITO",
+              "description": "Three Eggs, Tater Tots, Steak, Cheese, Secret Chipotle Sauce, Guacamole & Pico de Gallo",
+              "price": 18
+            },
+            {
+              "name": "SEAFOOD BURRITO",
+              "description": null,
+              "price": 17.5
+            },
+            {
+              "name": "Select Blackened Mahi or Grilled Shri",
+              "description": "Jack Cheese, Cabbage, Pico de Gallo, Rice, Black Beans & Creamy Pink Sauce",
+              "price": null
+            },
+            {
+              "name": "SURF & TURF BURRITO",
+              "description": "Steak, Shrimp, Rice, Avocado, Pico de Gallo & Secret Chipotle Sauce",
+              "price": 18.5
+            },
+            {
+              "name": "CLASSIC VEGGIE BURRITO",
+              "description": "Refried Beans, Rice, Jack Cheese, Pico de Gallo, Lettuce & Sour Cream",
+              "price": 12
+            },
+            {
+              "name": "SIDES",
+              "description": "Individual Side (8 oz)",
+              "price": 4
+            }
+          ]
+        },
+        {
+          "name": "QUESO TACO",
+          "items": [
+            {
+              "name": "Fries",
+              "description": "|",
+              "price": 5.5
+            },
+            {
+              "name": "Chicken",
+              "description": null,
+              "price": 5.5
+            },
+            {
+              "name": "Steak",
+              "description": null,
+              "price": 7.5
+            },
+            {
+              "name": "Cauliflower",
+              "description": "Crispy Cheese, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+              "price": 5.5
+            },
+            {
+              "name": "ADO-HABA PIÑA TACO",
+              "description": "Pork Adobada, Grilled Pineapple, Jack Cheese, Cilantro, Pineapple Habanero Sauce & Sour Cream",
+              "price": 6
+            },
+            {
+              "name": "SEAFOOD TACO",
+              "description": null,
+              "price": 6.25
+            },
+            {
+              "name": "Select Blackened Mahi or Grilled Shri",
+              "description": "Cabbage, Pico de Gallo, Queso Enchilado & Creamy Pink Sauce on a Flour Tortilla",
+              "price": null
+            },
+            {
+              "name": "LA VACA LOCA TACO",
+              "description": "Steak, Pinto Beans, Guacamole, Onions-Cilantro Mix & Chipotle Tomatillo Salsa",
+              "price": 6.5
+            },
+            {
+              "name": "EL POLLITO TACO",
+              "description": "Chicken, Pinto Beans, Guacamole, Onions-Cilantro Mix & Chipotle Tomatillo Salsa",
+              "price": 5.5
+            },
+            {
+              "name": "EL PORKY TACO",
+              "description": "Pork Adobada, Pineapple, Onions-Cilantro Mix & Creamy Cilantro Salsa",
+              "price": 5.5
+            },
+            {
+              "name": "SURF & TURF TACO",
+              "description": "Steak, Shrimp, Avocado, Queso Enchilado & Secret Chipotle Sauce",
+              "price": 7.5
+            },
+            {
+              "name": "BIRRIA QUESA TACO",
+              "description": null,
+              "price": 6.25
+            },
+            {
+              "name": "Select Beef Birria or Vegan Birria",
+              "description": "Melted Jack Cheese, Onions-Cilantro Mix & Spicy Salsa Muerta",
+              "price": null
+            }
+          ]
+        },
+        {
+          "name": "SPECIALTIES",
+          "items": [
+            {
+              "name": "BIRRIA NACHOS",
+              "description": null,
+              "price": 18
+            },
+            {
+              "name": "Select Beef Birria or Vegan Birria",
+              "description": "Tortilla Chips, Whole Beans, Onions-Cilantro Mix, Sour Cream, Jack Cheese & Salsa Muerta",
+              "price": null
+            }
+          ]
+        },
+        {
+          "name": "CHAMPION FRIES OR NACHOS",
+          "items": [
+            {
+              "name": "Steak",
+              "description": "Make your steak fries or nachos into Surf &amp; Turf (+ 5)",
+              "price": 19
+            },
+            {
+              "name": "TJ CORN",
+              "description": "White Corn Kernels in a cup served with Mayo, Queso Enchilado, Chili Powder & Lime",
+              "price": 4
+            }
+          ]
+        },
+        {
+          "name": "3 ROLLED TACOS",
+          "items": [
+            {
+              "name": "Chicken",
+              "description": null,
+              "price": 8.5
+            },
+            {
+              "name": "Potato",
+              "description": "Lettuce, Pico de Gallo, Cheese, Sour Cream, Queso Enchilado & Guacamole",
+              "price": 7.5
+            },
+            {
+              "name": "KIDS MEAL",
+              "description": null,
+              "price": 6
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "place_name": "Solare Ristorante",
+    "website": "https://solarelounge.com",
+    "fetched_at": "2026-11-01T00:02:10.551Z",
+    "status": "pdf",
+    "source_url": "https://solarelounge.com/docs/Solare-Dine-In-Menu.pdf"
+  },
+  {
+    "place_name": "Starlite",
+    "website": "https://www.starlitesandiego.com",
+    "fetched_at": "2026-11-01T00:02:15.716Z",
+    "status": "fetch_failed",
+    "detail": "homepage: Command failed: curl -s -L --fail --max-time 22 -A Mozilla/5.0 (Linux; Android 14; SM-S908U1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36 https://www.starlitesandiego.com"
+  },
+  {
+    "place_name": "Sushi Tadokoro",
+    "website": "http://sushitadokoro.com",
+    "fetched_at": "2026-11-01T00:02:16.348Z",
+    "status": "nomenu",
+    "detail": "site fetched; no readable menu found on its pages or the usual menu paths"
+  },
+  {
+    "place_name": "In-N-Out Burger",
+    "website": "https://www.in-n-out.com",
+    "fetched_at": "2026-11-01T00:02:24.750Z",
+    "status": "nomenu",
+    "detail": "site fetched; no readable menu found on its pages or the usual menu paths"
+  },
+  {
+    "place_name": "Mitch's Seafood",
+    "website": "https://mitchsseafood.com",
+    "fetched_at": "2026-11-01T00:02:27.921Z",
+    "status": "menu",
+    "source_url": "https://mitchsseafood.com",
+    "engine": "heuristic",
+    "items": 11,
+    "sections": [
+      "Selected Menu"
+    ],
+    "schema_errors": [],
+    "menu": {
+      "place_name": "Mitch's Seafood",
+      "source": "website",
+      "source_url": "https://mitchsseafood.com",
+      "fetched_at": "2026-11-01T00:02:39.367Z",
+      "engine": "heuristic",
+      "is_menu": true,
+      "sections": [
+        {
+          "name": "Selected Menu",
+          "items": [
+            {
+              "name": "Fisherman's Stew",
+              "description": "Mussels, Clams, Squid, Market Fish & Shrimp cooked in a tomato-white wine broth served with baguette",
+              "price": 29
+            },
+            {
+              "name": "Steamed Clams",
+              "description": "Dijon, White Wine Broth, Leeks. Served with Baguette",
+              "price": 19
+            },
+            {
+              "name": "Steamed Mussels",
+              "description": "Dijon, White Wine Broth, Leeks. Served with Baguette",
+              "price": 19
+            },
+            {
+              "name": "Grilled Fish Salad",
+              "description": "Choice of Daily Fish, Mixed Greens, Cherry Tomatoes, Kalamata Olives, Cucumber, Avocado, Balsamic Vinaigrette An Ideal WAY TO END THE DAY",
+              "price": 23
+            },
+            {
+              "name": "WINE &amp; BEER",
+              "description": "Our preference towards local doesn&#8217;t stop with our seafood. We offer craft beer from many of San Diego&#8217;s famous breweries, and wine from family vineyards throughout California.",
+              "price": null
+            },
+            {
+              "name": "Experience",
+              "description": "Our goal is to provide the highest quality, sustainably caught seafood for a reasonable price in a friendly casual environment.",
+              "price": null
+            },
+            {
+              "name": "Discover More",
+              "description": "CHECK OUT OUR SPOTLIGHT FROM SURFRIDER FOUNDATION",
+              "price": null
+            },
+            {
+              "name": "Located in the Heart of the Point Loma Sportfishing Dock.",
+              "description": "We are dedicated to serving Local Fish From Local Fishermen.",
+              "price": null
+            },
+            {
+              "name": "Facebook",
+              "description": "Instagram",
+              "price": null
+            },
+            {
+              "name": "Yelp",
+              "description": "Location",
+              "price": null
+            },
+            {
+              "name": "Phone:",
+              "description": "(619) 222-8787",
+              "price": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "place_name": "Point Loma Seafoods",
+    "website": "https://pointlomaseafoods.com",
+    "fetched_at": "2026-11-01T00:02:39.367Z",
+    "status": "pdf",
+    "source_url": "http://pointlomaseafoods.com/wp-content/uploads/2026/04/PLSFWebMenu4.16.26.pdf"
+  },
+  {
+    "place_name": "The Fishery",
+    "website": "https://thefishery.com",
+    "fetched_at": "2026-11-01T00:02:45.701Z",
+    "status": "nomenu",
+    "detail": "site fetched; no readable menu found on its pages or the usual menu paths"
+  },
+  {
+    "place_name": "Stone Brewing World Bistro (Liberty Station)",
+    "website": "https://www.stonebrewing.com",
+    "fetched_at": "2026-11-01T00:02:53.439Z",
+    "status": "menu",
+    "source_url": "https://www.stonebrewing.com/menus",
+    "engine": "heuristic",
+    "items": 10,
+    "sections": [
+      "ALL JOB OPENINGS"
+    ],
+    "schema_errors": [],
+    "menu": {
+      "place_name": "Stone Brewing World Bistro (Liberty Station)",
+      "source": "website",
+      "source_url": "https://www.stonebrewing.com/menus",
+      "fetched_at": "2026-11-01T00:02:57.176Z",
+      "engine": "heuristic",
+      "is_menu": true,
+      "sections": [
+        {
+          "name": "ALL JOB OPENINGS",
+          "items": [
+            {
+              "name": "Stone Brewing in Terminal",
+              "description": null,
+              "price": 2
+            },
+            {
+              "name": "Location",
+              "description": "Terminal 2, Gate 36 - San Diego International Airport",
+              "price": null
+            },
+            {
+              "name": "Sunday:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Monday:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Tuesday:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Wednesday:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Thursday:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Friday:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Today:",
+              "description": "6:00 am-10:00 pm",
+              "price": null
+            },
+            {
+              "name": "Store Hours",
+              "description": "Go to content",
+              "price": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "place_name": "Buona Forchetta",
+    "website": "https://buonaforchettasd.com",
+    "fetched_at": "2026-11-01T00:02:57.176Z",
+    "status": "menu",
+    "source_url": "https://buonaforchettasd.com/dinner-menu/",
+    "engine": "heuristic",
+    "items": 104,
+    "sections": [
+      "ANTIPASTi",
+      "INSALATE",
+      "BAKED SPECIALTIES",
+      "SIDES",
+      "PASTA SHAPES",
+      "$5 EA",
+      "PIZZA",
+      "STEP 1: CHOOSE PASTA",
+      "Pappardelle",
+      "STEP 2: CHOOSE SAUCE",
+      "STEP 3: ADD TOPPINGS!"
+    ],
+    "schema_errors": [],
+    "menu": {
+      "place_name": "Buona Forchetta",
+      "source": "website",
+      "source_url": "https://buonaforchettasd.com/dinner-menu/",
+      "fetched_at": "2026-11-01T00:02:59.510Z",
+      "engine": "heuristic",
+      "is_menu": true,
+      "sections": [
+        {
+          "name": "ANTIPASTi",
+          "items": [
+            {
+              "name": "Montanara (V)",
+              "description": "Fried pizza bites, chef’s creation, ask your server",
+              "price": 15
+            },
+            {
+              "name": "Artichokes (V)",
+              "description": "Artichoke hearts, fresh herbs, evoo, garlic",
+              "price": 20
+            },
+            {
+              "name": "Calamari Fritti",
+              "description": "Fried calamari, marinara. Add 5 large shrimp +$8.",
+              "price": 19
+            },
+            {
+              "name": "Eggplant Tortino (V)",
+              "description": "Eggplant, marinara, stracciata",
+              "price": 15
+            },
+            {
+              "name": "Polpettine",
+              "description": "Beef meatballs, tomato sauce, & grated parmigiano",
+              "price": 16
+            },
+            {
+              "name": "Bruschettone",
+              "description": "Chef’s creation, Ask your server",
+              "price": 16
+            },
+            {
+              "name": "Tagliere Misto",
+              "description": "Serves 2 people. Combination of artisanal cheeses and meats",
+              "price": 28
+            },
+            {
+              "name": "Focaccia (V)",
+              "description": null,
+              "price": 8
+            },
+            {
+              "name": "Woodfire Italian flatbread with Rosemary, Himalayan pink salt. Add Garlic +1, Add prosciutto + 6, Gluten free +",
+              "description": null,
+              "price": 3
+            }
+          ]
+        },
+        {
+          "name": "INSALATE",
+          "items": [
+            {
+              "name": "Add prosciutto +6, chicken +5, 5 large shrimp +8, grilled salmon +14, burrata +",
+              "description": null,
+              "price": 7
+            },
+            {
+              "name": "Burrata Caprese(V)",
+              "description": "Organic tomatoes, burrata, evoo, balsamic glaze",
+              "price": 18
+            },
+            {
+              "name": "Add prosciutto di parma +",
+              "description": null,
+              "price": 6
+            },
+            {
+              "name": "Fattore (V)",
+              "description": "Mixed greens, grape tomatoes, walnuts, and parmesan cheese",
+              "price": 13
+            },
+            {
+              "name": "Sottoterra (V)",
+              "description": "Carrots, fennel, parsnip, onions, mixed greens, goat cheese",
+              "price": 16
+            },
+            {
+              "name": "Piemonte",
+              "description": "Spinach, gorgonzola cheese, pear, sliced almonds, balsamic",
+              "price": 15
+            },
+            {
+              "name": "Beet Salad (V)",
+              "description": "Organic mixed greens, beets, lentils, goat cheese, parmigiano, balsamic",
+              "price": 16
+            },
+            {
+              "name": "Radicchio",
+              "description": "Radicchio and cauliflower salad, salami picante, pine nuts, basil, ricotta salata, currant vinaigrette",
+              "price": 16
+            },
+            {
+              "name": "Cucina Vegana",
+              "description": "See also vegetarian and vegan options on our pizza list",
+              "price": null
+            },
+            {
+              "name": "Insalata Vegana",
+              "description": "Organic baby spinach, chickpeas, cranberry, quinoa, Italian balsamic dressing",
+              "price": 15
+            },
+            {
+              "name": "Tagliere Vegano",
+              "description": "Serves 2-3 people. Grilled organic vegetables, marinated artichokes, mixed imported olives, vegan nduja confit tomatoes",
+              "price": 26
+            },
+            {
+              "name": "Spaghetti Puttanesca",
+              "description": "Cherry tomatoes, black olives, capers, onions and garlic",
+              "price": 21
+            },
+            {
+              "name": "Penne al Funghi",
+              "description": "Shallots, garlic, parsley, mix mushrooms",
+              "price": 20
+            },
+            {
+              "name": "Ravioli Vegan",
+              "description": "Stuffed ravioli with asparagus puree and seasonal julienne vegetables",
+              "price": 26
+            }
+          ]
+        },
+        {
+          "name": "BAKED SPECIALTIES",
+          "items": [
+            {
+              "name": "Lasagna Bolognese",
+              "description": "Fresh homemade pasta and ground beef ragu, béchamel sauce, parmesan cheese",
+              "price": 26
+            },
+            {
+              "name": "Eggplant Parmigiana (V)",
+              "description": "Fried eggplant, smoked mozzarella, marinara sauce, parmesan, basil",
+              "price": 24
+            },
+            {
+              "name": "Lasagna Vegetariana (G)",
+              "description": "Fresh homemade pasta, zucchini, asparagus, mixed mushrooms, béchamel, smoked mozzarella",
+              "price": 24
+            }
+          ]
+        },
+        {
+          "name": "SIDES",
+          "items": [
+            {
+              "name": "Broccolini",
+              "description": "Broccolini with shallot, evoo & black pepper",
+              "price": 9
+            },
+            {
+              "name": "Roasted Potatoes",
+              "description": "Roasted potatoes with rosemary & melted smoked mozzarella",
+              "price": 9
+            },
+            {
+              "name": "Sauteed Mixed Mushrooms",
+              "description": "Sauteed mixed mushrooms with parsley & garlic",
+              "price": 9
+            },
+            {
+              "name": "Sauteed Baby Spinach",
+              "description": "Sauteed baby spinach with butter and parmesan cheese",
+              "price": 9
+            },
+            {
+              "name": "Brussels Sprouts",
+              "description": "Brussel sprouts with smoked pancetta & balsamic",
+              "price": 9
+            }
+          ]
+        },
+        {
+          "name": "PASTA SHAPES",
+          "items": [
+            {
+              "name": "Amatriciana",
+              "description": "Organic tomatoes, pork guanciale, onions, pecorino cheese",
+              "price": 22
+            },
+            {
+              "name": "Cacio E Pepe (V)",
+              "description": "Pecorino cheese, black pepper",
+              "price": 21
+            },
+            {
+              "name": "Bolognese",
+              "description": "Ground Angus beef, tomatoes",
+              "price": 23
+            },
+            {
+              "name": "Pesto (Contains Nuts) (V)",
+              "description": "Aged parmesan, evoo, basil, pinenuts",
+              "price": 22
+            },
+            {
+              "name": "Carbonara",
+              "description": "Egg yolk, pecorino cheese, pork guanciale",
+              "price": 23
+            },
+            {
+              "name": "Due Pomodori (V)",
+              "description": "Organic tomatoes, garlic, basil",
+              "price": 19
+            },
+            {
+              "name": "Buona Forchetta (V)",
+              "description": "Cream, egg yolk, parmigano, spicy marinara,black pepper",
+              "price": 21
+            },
+            {
+              "name": "Aglio Olio E Peperoncino",
+              "description": "Garlic, evoo and fresh chilly pepper",
+              "price": 18
+            }
+          ]
+        },
+        {
+          "name": "$5 EA",
+          "items": [
+            {
+              "name": "Salsiccia",
+              "description": "Crumbled Italian sausage",
+              "price": 4
+            },
+            {
+              "name": "Guanciale",
+              "description": "Imported Italian cured pork cheek",
+              "price": 5
+            },
+            {
+              "name": "Chicken",
+              "description": "Sliced oven roasted chicken breast",
+              "price": 6
+            },
+            {
+              "name": "Shri",
+              "description": null,
+              "price": null
+            },
+            {
+              "name": "5 Sauteed jumbo shri",
+              "description": null,
+              "price": null
+            },
+            {
+              "name": "Porcini",
+              "description": "Imported porcini mushrooms",
+              "price": 8
+            },
+            {
+              "name": "Mozzarella",
+              "description": "Shredded fresh mozzarella",
+              "price": 5
+            },
+            {
+              "name": "Burrata",
+              "description": "Artisanal burrata",
+              "price": 7
+            }
+          ]
+        },
+        {
+          "name": "PIZZA",
+          "items": [
+            {
+              "name": "Make it gluten free +3. Vegan mozzarella +",
+              "description": "Classiche Napoletane STG",
+              "price": 2
+            },
+            {
+              "name": "Margherita",
+              "description": "San Marzano tomatoes, mozzarella, basil, evoo",
+              "price": 18
+            },
+            {
+              "name": "Marinara",
+              "description": "San Marzano tomatoes, oregano, garlic, grape tomatoes",
+              "price": 15
+            },
+            {
+              "name": "Regina Margherita",
+              "description": "Mozzarella di bufala, grape tomatoes, basil, parmigiano",
+              "price": 20
+            },
+            {
+              "name": "Puttanesca",
+              "description": "Mozzarella, capers, anchovies, olives, San Marzano tomatoes Le Bianche - No Sauce",
+              "price": 19
+            },
+            {
+              "name": "Andrea",
+              "description": "Provola, roasted potatoes, sausage, parmigiano",
+              "price": 20
+            },
+            {
+              "name": "Marisa",
+              "description": "Mozzarella, pesto, ricotta, grape tomatoes, pine nuts",
+              "price": 20
+            },
+            {
+              "name": "Barbara",
+              "description": "Mozzarella di bufala, provola, gorgonzola, parmigiano",
+              "price": 20
+            },
+            {
+              "name": "Isabella",
+              "description": "Mozzarella di bufala, sun-dried tomatoes, onions, goat cheese",
+              "price": 19
+            },
+            {
+              "name": "Michelle",
+              "description": "Caramelized onions, gorgonzola, speck, mozzarella",
+              "price": 22
+            },
+            {
+              "name": "Alexa",
+              "description": "Provola, fennel sausage, broccolini",
+              "price": 20
+            },
+            {
+              "name": "TeePoo",
+              "description": "Mozzarella, ham, artichokes, mushrooms, ricotta",
+              "price": 21
+            },
+            {
+              "name": "Lina",
+              "description": "Pepperoni, nduja, mozzarella, stracciata, spicy honey",
+              "price": 23
+            },
+            {
+              "name": "Guiseppe",
+              "description": "Mozzarella, porcini, spicy salame, calabrese, baby arugula, shaved parmigiano",
+              "price": 23
+            },
+            {
+              "name": "Agnese",
+              "description": "Gorgonzola, speck, parmesan, walnuts, arugula, spicy honey",
+              "price": 22
+            },
+            {
+              "name": "Vegana &amp; Vegetarian",
+              "description": "Your choice of mozzarella or vegan cheese, and/or tomato sauce",
+              "price": null
+            },
+            {
+              "name": "Piera",
+              "description": "Pesto, grape tomatoes, caramelized onions, mushrooms",
+              "price": 20
+            },
+            {
+              "name": "Gabriele",
+              "description": "Spinach, porcini, grape tomatoes",
+              "price": 20
+            },
+            {
+              "name": "Jackson",
+              "description": "Artichokes, arugula, grape tomatoes, onion, olives Le Rosse - Tomato Sauce",
+              "price": 20
+            },
+            {
+              "name": "Sofia",
+              "description": "Mozzarella, prosciutto cotto, artichokes, mushrooms",
+              "price": 21
+            },
+            {
+              "name": "Sergio",
+              "description": "Mozzarella di bufala, prosciutto, baby arugula, shaved parmigiano",
+              "price": 23
+            },
+            {
+              "name": "Augusta",
+              "description": "Mozzarella, eggplant, zucchini, bell peppers, grape tomatoes",
+              "price": 20
+            },
+            {
+              "name": "Nicola",
+              "description": "Mozzarella, mushrooms, prosciutto di parma, truffle oil",
+              "price": 23
+            },
+            {
+              "name": "Daniela",
+              "description": "Mozzarella di bufala, brie, speck",
+              "price": 22
+            },
+            {
+              "name": "Angela",
+              "description": "Mozzarella, spicy salame calabrese",
+              "price": 20
+            },
+            {
+              "name": "Bruna",
+              "description": "Mozzarella, sausage, pepperoni, spicy salame",
+              "price": 23
+            },
+            {
+              "name": "Martina",
+              "description": "Mozzarella, pepperoni, red onion, oregano, crushed red pepper, arugula, truffle oil, parmesan",
+              "price": 22
+            },
+            {
+              "name": "Juna",
+              "description": "Mozzarella, pepperoni, sausage, mushroom, spicy honey",
+              "price": 22
+            },
+            {
+              "name": "Giulia",
+              "description": "Mozzarella, spicy salami, onion, sausage, bell pepper, spicy honey",
+              "price": 22
+            },
+            {
+              "name": "Eva",
+              "description": "Mozzarella, spicy salame, pepperoni, ham, spicy honey",
+              "price": 23
+            },
+            {
+              "name": "Pepperoni",
+              "description": null,
+              "price": 18
+            },
+            {
+              "name": "Tomato sauce, mozzarella and pepperoni",
+              "description": "Le Fritte | Fried Pizza (GF not available)",
+              "price": null
+            },
+            {
+              "name": "Amanda",
+              "description": "Marinara, mozzarella, ricotta, prosciutto",
+              "price": 22
+            },
+            {
+              "name": "Rebecca",
+              "description": "Marinara, mozzarella, ham, mushrooms Calzoni (GF not available)",
+              "price": 21
+            },
+            {
+              "name": "India",
+              "description": "Ham, ricotta, mozzarella, grape tomatoes",
+              "price": 20
+            },
+            {
+              "name": "Kira",
+              "description": "Mozzarella, fennel, sausage, ricotta, tomato sauce",
+              "price": 20
+            },
+            {
+              "name": "Ezio",
+              "description": "Mozzarella, brie, prosciutto, baby arugula, shaved parmigiano",
+              "price": 23
+            }
+          ]
+        },
+        {
+          "name": "STEP 1: CHOOSE PASTA",
+          "items": [
+            {
+              "name": "Fresh homemade egg pasta +1, gluten free pasta +3, gluten free gnocchi +",
+              "description": null,
+              "price": 4
+            },
+            {
+              "name": "Taglioni",
+              "description": "Fettucine",
+              "price": null
+            }
+          ]
+        },
+        {
+          "name": "Pappardelle",
+          "items": [
+            {
+              "name": "Gnocchi",
+              "description": null,
+              "price": 3
+            },
+            {
+              "name": "Penne",
+              "description": "Spaghetti",
+              "price": null
+            }
+          ]
+        },
+        {
+          "name": "STEP 2: CHOOSE SAUCE",
+          "items": [
+            {
+              "name": "Amatriciana",
+              "description": "Organic tomatoes, guanciale, onions, pecorino cheese",
+              "price": 20
+            },
+            {
+              "name": "Cacio e Pepe (V)",
+              "description": "Pecorino cheese, black pepper",
+              "price": 19
+            },
+            {
+              "name": "Bolognese",
+              "description": "Ground angus beef, tomatoes",
+              "price": 22
+            },
+            {
+              "name": "Pesto (V)",
+              "description": "24 month aged parmigiano, evoo, basil, pinenuts (contains nuts)",
+              "price": 21
+            },
+            {
+              "name": "Carbonara",
+              "description": "Egg yolk, pecorino, pork guanciale",
+              "price": 21
+            },
+            {
+              "name": "Due Pomodori (V)",
+              "description": "Organic tomatoes, garlic, basil",
+              "price": 18
+            },
+            {
+              "name": "Buona Forchetta (V)",
+              "description": "Cream, egg yolk, parmigiano, spicy marinara, black pepper",
+              "price": 20
+            },
+            {
+              "name": "Aglio olio e peperoncino",
+              "description": "Garlic, evoo, fresh chili peppers",
+              "price": 17
+            }
+          ]
+        },
+        {
+          "name": "STEP 3: ADD TOPPINGS!",
+          "items": [
+            {
+              "name": "Salsiccia",
+              "description": "Crumbled Italian sausage",
+              "price": 4
+            },
+            {
+              "name": "Guanciale",
+              "description": "Imported Italian cured pork cheek",
+              "price": 5
+            },
+            {
+              "name": "Pollo",
+              "description": "Sliced oven roasted chicken breast",
+              "price": 4
+            },
+            {
+              "name": "Shri",
+              "description": null,
+              "price": null
+            },
+            {
+              "name": "Five sauteed jumbo shri",
+              "description": null,
+              "price": null
+            },
+            {
+              "name": "Porcini",
+              "description": "Imported porcini mushrooms",
+              "price": 8
+            },
+            {
+              "name": "Mozzarella",
+              "description": "Shredded fresh mozzarella",
+              "price": 4
+            },
+            {
+              "name": "Burrata",
+              "description": "Artisanal burrata",
+              "price": 7
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "place_name": "Corvette Diner",
+    "website": "https://www.corvettediner.com",
+    "fetched_at": "2026-11-01T00:02:59.510Z",
+    "status": "fetch_failed",
+    "detail": "homepage: Command failed: curl -s -L --fail --max-time 22 -A Mozilla/5.0 (Linux; Android 14; SM-S908U1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36 https://www.corvettediner.com"
+  },
+  {
+    "place_name": "Cucina Urbana",
+    "website": "https://cucinaurbana.com",
+    "fetched_at": "2026-11-01T00:02:59.815Z",
+    "status": "nomenu",
+    "detail": "site fetched; no readable menu found on its pages or the usual menu paths"
+  },
+  {
+    "place_name": "Jayne's Gastropub",
+    "website": "https://jaynesgastropub.com",
+    "fetched_at": "2026-11-01T00:03:18.573Z",
+    "status": "nomenu",
+    "detail": "site fetched; no readable menu found on its pages or the usual menu paths"
+  },
+  {
+    "place_name": "Hodad's",
+    "website": "https://hodads.com",
+    "fetched_at": "2026-11-01T00:03:21.713Z",
+    "status": "menu",
+    "source_url": "https://hodads.com",
+    "engine": "heuristic",
+    "items": 8,
+    "sections": [
+      "ARCO",
+      "Pepsi"
+    ],
+    "schema_errors": [],
+    "menu": {
+      "place_name": "Hodad's",
+      "source": "website",
+      "source_url": "https://hodads.com",
+      "fetched_at": "2026-11-01T00:03:26.872Z",
+      "engine": "heuristic",
+      "is_menu": true,
+      "sections": [
+        {
+          "name": "ARCO",
+          "items": [
+            {
+              "name": "Century",
+              "description": "\"You really know how to work the audience and get them up and dancin'.\"",
+              "price": 21
+            },
+            {
+              "name": "Daily News",
+              "description": "\"...saved the best for last. ...really get the crowd rockin' and it's a great time.\"",
+              "price": null
+            },
+            {
+              "name": "Vita Tech",
+              "description": "\"...sincere thanks for the tremendous job \"The Hodads\" have done for the past two years. I constantly get reminders from our members on what a great group you are.\"",
+              "price": null
+            },
+            {
+              "name": "Nissan",
+              "description": "\"...as I've heard it said before The Hodads are the \"Best Damn Party Band in the Universe\".\"",
+              "price": null
+            },
+            {
+              "name": "American Lock and Supply",
+              "description": "\"...many comments regarding your band as being \"fantastic\", \"fun\", \"incredible\" , etc.\"",
+              "price": null
+            }
+          ]
+        },
+        {
+          "name": "Pepsi",
+          "items": [
+            {
+              "name": "\"...the best party we ever had!...The group was terrific...\"",
+              "description": null,
+              "price": 1
+            },
+            {
+              "name": "More",
+              "description": "Our Song List",
+              "price": null
+            },
+            {
+              "name": "&nbsp;",
+              "description": "Our Stage Plot",
+              "price": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "place_name": "Tender Greens",
+    "website": "https://www.tendergreens.com",
+    "fetched_at": "2026-11-01T00:03:26.872Z",
+    "status": "pdf",
+    "source_url": "https://www.tendergreens.com/wp-content/uploads/2026/10/TG-WEB-Menu_Fall-2026_NEW.pdf"
+  }
+]
