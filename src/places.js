@@ -47,7 +47,7 @@ export function buildQuery(bounds) {
   node["shop"="bakery"](${bbox});
   way["shop"="bakery"](${bbox});
 );
-out tags center 300;`
+out tags center 500;`
 }
 
 // Public Overpass mirrors, RACED in parallel (see fetchPlaces).
@@ -104,19 +104,55 @@ async function fetchFromEndpoint(endpoint, query, timeoutMs) {
   }
 }
 
-// Races every endpoint in parallel and takes the first good answer.
-// Why: serial fallback burned a full timeout per dead/slow mirror
-// before trying the next — on Alex's phone (2026-10-31) the public
-// instances queued long enough that the app sat on "Loading…" with no
-// pins at all. With a race, a hanging mirror costs nothing.
+// Races every endpoint in parallel. The first NON-EMPTY answer wins.
+// Why not first-answer-wins: some mirrors reply fast with an empty
+// result set (partial/stale extracts) — on Alex's phone (2026-10-31)
+// a fast empty beat the real data and the app reported "0 places" in
+// a neighborhood full of restaurants. An empty result is trusted
+// only when every responding mirror agrees on it.
 // Throws only if ALL endpoints fail.
 export async function fetchPlaces(bounds, timeoutMs = 20000) {
   const query = buildQuery(bounds)
-  try {
-    return await Promise.any(ENDPOINTS.map((ep) => fetchFromEndpoint(ep, query, timeoutMs)))
-  } catch (err) {
-    const reasons = (err.errors || []).map((e) => e.message).join(' | ')
-    throw new Error('All Overpass endpoints failed: ' + (reasons || err.message))
+  const attempts = ENDPOINTS.map((ep) => fetchFromEndpoint(ep, query, timeoutMs))
+  return new Promise((resolve, reject) => {
+    let settled = 0
+    let emptyResult = null
+    const errors = []
+    const done = () => {
+      if (emptyResult) resolve(emptyResult)
+      else reject(new Error('All Overpass endpoints failed: ' + errors.map((e) => e.message).join(' | ')))
+    }
+    attempts.forEach((p) => p.then(
+      (places) => {
+        if (places.length > 0) resolve(places)
+        else {
+          emptyResult = places
+          if (++settled === attempts.length) done()
+        }
+      },
+      (err) => {
+        errors.push(err)
+        if (++settled === attempts.length) done()
+      },
+    ))
+  })
+}
+
+// Widens a viewport bbox before querying: at street-level zoom the
+// visible rectangle can be a few hundred meters across and hold no
+// mapped places even in a restaurant neighborhood (the basemap showed
+// Lorna's Italian Kitchen while the raw viewport query found none).
+// Pads each side by 75% of the span and enforces a ~3 km minimum span,
+// so a search always covers the neighborhood, like Google Maps does.
+export function padBounds(bounds, minSpan = 0.03) {
+  const latSpan = Math.max(bounds.north - bounds.south, minSpan)
+  const lonSpan = Math.max(bounds.east - bounds.west, minSpan)
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
+  return {
+    south: clamp(bounds.south - latSpan * 0.75, -89, 89),
+    north: clamp(bounds.north + latSpan * 0.75, -89, 89),
+    west: clamp(bounds.west - lonSpan * 0.75, -179, 179),
+    east: clamp(bounds.east + lonSpan * 0.75, -179, 179),
   }
 }
 

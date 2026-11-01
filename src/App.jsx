@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import {
-  CATEGORIES, SEED_PLACES, categoryMeta, fetchPlaces, readPlacesCache, writePlacesCache,
+  CATEGORIES, SEED_PLACES, categoryMeta, fetchPlaces, padBounds, readPlacesCache, writePlacesCache,
 } from './places'
 import {
   BUNDLED_MENUS, countItems, fetchMenuForPlace, loadCachedMenu, loadSettings,
@@ -72,10 +72,10 @@ export default function App() {
       return
     }
     const b = map.getBounds()
-    const bounds = {
+    const bounds = padBounds({
       south: +b.getSouth().toFixed(4), west: +b.getWest().toFixed(4),
       north: +b.getNorth().toFixed(4), east: +b.getEast().toFixed(4),
-    }
+    })
     const cacheKey = Object.values(bounds).join(',')
     if (cacheRef.current.has(cacheKey)) {
       setPlaces(cacheRef.current.get(cacheKey))

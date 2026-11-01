@@ -1,6 +1,6 @@
 // Logic checks for the M1 data layer (run: node test-places.mjs)
 import {
-  CATEGORIES, SEED_PLACES, buildQuery, categoryOf, fetchPlaces,
+  CATEGORIES, SEED_PLACES, buildQuery, categoryOf, fetchPlaces, padBounds,
   readPlacesCache, writePlacesCache, ENDPOINTS,
 } from './src/places.js'
 
@@ -50,6 +50,48 @@ check('seed set is non-empty and fully formed', SEED_PLACES.length >= 3 && SEED_
   (p) => p.name && Number.isFinite(p.lat) && Number.isFinite(p.lon) && p.category))
 check('seed places are marked as seed (never passed off as live)',
   SEED_PLACES.every((p) => p.source === 'seed'))
+
+// Padding: a street-level viewport grows to cover the neighborhood.
+{
+  const tiny = { south: 32.855, west: -117.197, north: 32.857, east: -117.195 }
+  const p = padBounds(tiny)
+  check('padBounds enforces a minimum span', (p.north - p.south) >= 0.03 && (p.east - p.west) >= 0.03)
+  check('padBounds keeps the viewport inside the padded box',
+    p.south < tiny.south && p.north > tiny.north && p.west < tiny.west && p.east > tiny.east)
+  const wide = { south: 32.8, west: -117.25, north: 32.9, east: -117.15 }
+  const pw = padBounds(wide)
+  check('padBounds expands a wide viewport by ~75% each side',
+    Math.abs((pw.north - pw.south) - 0.25) < 0.001)
+}
+
+// Race semantics, with fetch stubbed per endpoint: a FAST EMPTY answer
+// must not beat a slower real one; empty is returned only if every
+// mirror agrees; total failure still rejects with the contract message.
+{
+  const realFetch = globalThis.fetch
+  const el = { type: 'node', id: 42, lat: 32.855, lon: -117.196, tags: { name: 'Lorna\'s Italian Kitchen', amenity: 'restaurant' } }
+  const respond = (elements, delayMs) => new Promise((res) => setTimeout(() => res({
+    ok: true, json: async () => ({ elements }),
+  }), delayMs))
+  const bb = { south: 32.84, west: -117.21, north: 32.87, east: -117.18 }
+
+  globalThis.fetch = (url) => {
+    if (url.includes('overpass-api.de')) return respond([], 5) // fast + empty
+    if (url.includes('kumi')) return respond([el], 60) // slower + real
+    return Promise.reject(new Error('stubbed outage'))
+  }
+  const got = await fetchPlaces(bb, 5000)
+  check('race: fast empty does not beat slower real data', got.length === 1 && got[0].name.includes('Lorna'))
+
+  globalThis.fetch = () => respond([], 5)
+  check('race: unanimous empty resolves empty', (await fetchPlaces(bb, 5000)).length === 0)
+
+  globalThis.fetch = () => Promise.reject(new Error('stubbed outage'))
+  let rejected = false
+  try { await fetchPlaces(bb, 5000) } catch (e) { rejected = /All Overpass endpoints failed/.test(e.message) }
+  check('race: total failure rejects with the contract message', rejected)
+  globalThis.fetch = realFetch
+}
 
 // Failure path: with a 1.5s per-endpoint timeout, fetchPlaces must reject
 // (Overpass is unreachable from the build VM) rather than hang or fake data.
