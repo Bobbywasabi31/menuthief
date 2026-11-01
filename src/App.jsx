@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import {
-  CATEGORIES, SEED_PLACES, categoryMeta, fetchPlaces,
+  CATEGORIES, SEED_PLACES, categoryMeta, fetchPlaces, readPlacesCache, writePlacesCache,
 } from './places'
 import {
   BUNDLED_MENUS, countItems, fetchMenuForPlace, loadCachedMenu, loadSettings,
@@ -83,19 +83,33 @@ export default function App() {
       setNotice('')
       return
     }
+    // Paint the last good fetch for this area immediately (persistent
+    // cache), then refresh in the background — a slow Overpass must
+    // never leave a blank map (Alex, 2026-10-31: "restaurants arn't
+    // showing up" while the pill sat on Loading…).
+    const cached = readPlacesCache(bounds)
+    if (cached?.length) setPlaces(cached)
     setStatus('loading')
     try {
       const found = await fetchPlaces(bounds)
       cacheRef.current.set(cacheKey, found)
+      writePlacesCache(bounds, found)
       setPlaces(found)
       setStatus('live')
       setNotice(found.length === 0 ? 'No food places mapped in this area yet' : '')
     } catch (err) {
-      // Honest degradation: sample data, visibly labeled — never fake "live".
       console.warn(err)
-      setPlaces((prev) => (prev.length ? prev : SEED_PLACES))
-      setStatus((prev) => (prev === 'live' ? prev : 'seed'))
-      setNotice('Live place data is unreachable right now — showing sample places near Liberty Station, San Diego')
+      if (cached?.length) {
+        // Real places from an earlier successful load stay on the map;
+        // say plainly that the refresh failed.
+        setStatus('live')
+        setNotice('Showing places loaded earlier for this area — refresh failed')
+      } else {
+        // Honest degradation: sample data, visibly labeled — never fake "live".
+        setPlaces((prev) => (prev.length ? prev : SEED_PLACES))
+        setStatus((prev) => (prev === 'live' ? prev : 'seed'))
+        setNotice('Live place data is unreachable right now — showing sample places near Liberty Station, San Diego')
+      }
     }
   }
 

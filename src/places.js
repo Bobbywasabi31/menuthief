@@ -38,20 +38,27 @@ const AMENITY_REGEX =
 export function buildQuery(bounds) {
   const { south, west, north, east } = bounds
   const bbox = `${south},${west},${north},${east}`
-  return `[out:json][timeout:25];
+  // `out tags center` = tags + coordinates only (no way geometry), the
+  // smallest payload that still pins every place.
+  return `[out:json][timeout:20];
 (
   node["amenity"~"${AMENITY_REGEX}"](${bbox});
   way["amenity"~"${AMENITY_REGEX}"](${bbox});
   node["shop"="bakery"](${bbox});
   way["shop"="bakery"](${bbox});
 );
-out center 300;`
+out tags center 300;`
 }
 
+// Public Overpass mirrors, RACED in parallel (see fetchPlaces).
+// openstreetmap.fr was dropped 2026-10-31: it now 403s non-whitelisted
+// usage, so it only ever burned a serial timeout.
 export const ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass.openstreetmap.fr/api/interpreter',
+  'https://overpass.nchc.org.tw/api/interpreter',
+  'https://overpass.osm.ch/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
 ]
 
 function normalizeElement(el) {
@@ -97,18 +104,50 @@ async function fetchFromEndpoint(endpoint, query, timeoutMs) {
   }
 }
 
-// Tries each endpoint once; throws only if all fail.
-export async function fetchPlaces(bounds, timeoutMs = 25000) {
+// Races every endpoint in parallel and takes the first good answer.
+// Why: serial fallback burned a full timeout per dead/slow mirror
+// before trying the next — on Alex's phone (2026-10-31) the public
+// instances queued long enough that the app sat on "Loading…" with no
+// pins at all. With a race, a hanging mirror costs nothing.
+// Throws only if ALL endpoints fail.
+export async function fetchPlaces(bounds, timeoutMs = 20000) {
   const query = buildQuery(bounds)
-  const errors = []
-  for (const endpoint of ENDPOINTS) {
-    try {
-      return await fetchFromEndpoint(endpoint, query, timeoutMs)
-    } catch (err) {
-      errors.push(`${endpoint}: ${err.message}`)
-    }
+  try {
+    return await Promise.any(ENDPOINTS.map((ep) => fetchFromEndpoint(ep, query, timeoutMs)))
+  } catch (err) {
+    const reasons = (err.errors || []).map((e) => e.message).join(' | ')
+    throw new Error('All Overpass endpoints failed: ' + (reasons || err.message))
   }
-  throw new Error('All Overpass endpoints failed: ' + errors.join(' | '))
+}
+
+// Last-good-places cache (~1 km grid cells). The app paints cached pins
+// instantly on open and refreshes in the background, so a slow Overpass
+// never leaves a blank map. Only ever written from a successful live
+// fetch, so cached data is real data — just possibly a few days old.
+const PLACES_CACHE_KEY = 'menumap-places-cache-v1'
+
+function cacheCell(bounds) {
+  const r = (v) => Math.round(v * 100) / 100
+  return `${r(bounds.south)},${r(bounds.west)},${r(bounds.north)},${r(bounds.east)}`
+}
+
+export function readPlacesCache(bounds) {
+  try {
+    const all = JSON.parse(localStorage.getItem(PLACES_CACHE_KEY) || '{}')
+    return all[cacheCell(bounds)]?.places || null
+  } catch {
+    return null
+  }
+}
+
+export function writePlacesCache(bounds, places) {
+  try {
+    const all = JSON.parse(localStorage.getItem(PLACES_CACHE_KEY) || '{}')
+    all[cacheCell(bounds)] = { savedAt: Date.now(), places }
+    // keep only the 8 most recent cells
+    const cells = Object.entries(all).sort((a, b) => (b[1].savedAt || 0) - (a[1].savedAt || 0))
+    localStorage.setItem(PLACES_CACHE_KEY, JSON.stringify(Object.fromEntries(cells.slice(0, 8))))
+  } catch { /* storage full/blocked — cache is best-effort */ }
 }
 
 // Fallback demo data — real places, coordinates verified from their public
