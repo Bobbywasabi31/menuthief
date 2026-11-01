@@ -25,9 +25,9 @@ A food-only map: every pin is somewhere to eat. Tap a place to see its
 
 1. **Map** — food places from OpenStreetMap via the Overpass API
    (restaurants, cafés, fast food, bakeries, bars & pubs, dessert),
-   filtered by category, on a CARTO Voyager basemap (same OSM data,
-   modern styling). No Google Places: its API doesn't return menu
-   items anyway.
+   filtered by category, on an Esri World Street Map basemap (modern
+   styling, keyless — CARTO's basemaps now watermark keyless tiles).
+   No Google Places: its API doesn't return menu items anyway.
 2. **Menu** — tapping a place pulls the menu from the restaurant's
    *own* website in the browser: find the menu link (delivery platforms
    are excluded as a rule), probe the usual menu paths (`/menu`,

@@ -104,12 +104,14 @@ export default function App() {
     const map = L.map(mapEl.current, { zoomControl: false }).setView(
       [HOME.lat, HOME.lon], HOME.zoom)
     L.control.zoom({ position: 'bottomright' }).addTo(map)
-    // CARTO Voyager basemap: same OpenStreetMap data, modern styling
-    // (the stock OSM tile style Alex flagged as looking "really old").
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
-      maxZoom: 20,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    // Esri World Street Map basemap: modern styling, no API key.
+    // History: the stock OSM style was swapped for CARTO Voyager in
+    // v1.2.0, but CARTO now serves an "API KEY REQUIRED" watermark tile
+    // (with HTTP 200!) to keyless clients — caught by Alex's screenshot
+    // 2026-10-31 and fixed here. Verify tile CONTENT, not status codes.
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, TomTom, Garmin, FAO, NOAA, USGS, &copy; OpenStreetMap contributors, and the GIS User Community',
     }).addTo(map)
     mapRef.current = map
     loadPlaces(map)
@@ -716,7 +718,7 @@ export default function App() {
               <button className="btn btn-primary" onClick={() => setShowSettings(false)}>Done</button>
             </div>
             <div className="modal-foot">
-              MenuThief 1.2 · Places and map © OpenStreetMap contributors, © CARTO ·
+              MenuThief 1.2 · Places © OpenStreetMap contributors · Map tiles © Esri ·
               Menus belong to their restaurants — recipes here are home versions
               inspired by them, never the originals.
             </div>
