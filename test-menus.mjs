@@ -1,8 +1,11 @@
 // Logic checks for the M2 menu layer (run: node test-menus.mjs)
 import {
-  BUNDLED_MENUS, TEXT_MENU_PROMPT, countItems, extractLinks, htmlToText,
-  menuLinkCandidates, parseMenuHeuristic, pickPdfFallback, splitPrice, validateMenu,
+  BUNDLED_MENUS, TEXT_MENU_PROMPT, countItems, extractLinks, extractPdfText,
+  fetchMenuForPlace, htmlToText, isGarbledPdfText,
+  menuLinkCandidates, normalizePdfText, parseMenuHeuristic, pickPdfFallback,
+  splitPrice, validateMenu,
 } from './src/menus.js'
+import { readFileSync } from 'node:fs'
 
 let failures = 0
 const check = (name, cond) => {
@@ -155,6 +158,68 @@ const homeText = [
 const notMenu = parseMenuHeuristic(homeText)
 check('heuristic refuses homepage text (no invented menu)',
   notMenu.is_menu === false && notMenu.sections.length === 0)
+
+// --- PDF menus (v1.3.0) -------------------------------------------------
+// Normalization: spaceless caps dish names get their spaces back,
+// section headers stay caps, glyph soup is dropped, icon junk stripped.
+const tgNorm = normalizePdfText([
+  'FRIEDCHICKENSANDWICH@',
+  'country-style fried chicken breast, cabbage slaw,',
+  'SOUPS',
+  'GREENPOZOLE@@@',
+  'shredded chicken, hominy, tomatillos, onions,',
+  '.......-___...... .............. ~:J{ua/__..,_......',
+].join('\n'))
+check('pdf normalize re-spaces merged dish names', tgNorm.includes('Fried Chicken Sandwich'))
+check('pdf normalize keeps section headers caps', tgNorm.split('\n').includes('SOUPS'))
+check('pdf normalize strips icon junk', !tgNorm.includes('@'))
+check('pdf normalize drops glyph-soup lines', !tgNorm.includes('___'))
+
+// Priceless parsing: a no-price menu parses only with the PDF opt-in.
+const tgText = [
+  'SANDWICHES', 'Fried Chicken Sandwich', 'country-style fried chicken breast, cabbage slaw, pickles',
+  'Grilled Steak', 'sliced steak, horseradish aioli, arugula, grilled sourdough bread',
+  'Chicken Pesto Sandwich', 'chicken breast, provolone, preserved tomatoes, arugula, pesto',
+  'Tomato Mozzarella Sandwich', 'mozzarella, preserved tomatoes, arugula, sunflower seed pesto',
+  'SOUPS', 'Green Pozole', 'shredded chicken, hominy, tomatillos, onions, cabbage, radish',
+  'Rustic Chicken', 'potato, carrot, celery, onion, thyme, rich chicken broth',
+  'Roasted Tomato', 'sourdough croutons and basil oil, shaved parmesan cheese',
+].join('\n')
+const tgParsed = parseMenuHeuristic(tgText, { pricelessOk: true })
+check('priceless PDF text parses as a menu with the opt-in',
+  tgParsed.is_menu && tgParsed.sections.flatMap((s) => s.items).length >= 6
+  && tgParsed.sections.flatMap((s) => s.items).every((it) => it.price === null))
+check('same text refused without the opt-in (anchor rule intact)',
+  parseMenuHeuristic(tgText).is_menu === false)
+
+// Garble gate (Point Loma class: substitution-cipher extraction).
+check('garble gate flags cipher text',
+  isGarbledPdfText('normal start  more text  with controls everywhere ' + 'x'.repeat(300) + ''.repeat(20)))
+check('garble gate passes real menu text',
+  !isGarbledPdfText('Margherita 18\nDiavola 21\n'.repeat(30)))
+
+// Extraction from a real (synthetic-fixture) PDF + end-to-end flow:
+// homepage links a PDF -> fetchMenuForPlace parses it into a menu.
+const fixtureBytes = readFileSync(new URL('./test-fixtures/menu.pdf', import.meta.url))
+const pdfText = await extractPdfText(fixtureBytes)
+check('pdf extraction reads the fixture menu', pdfText.includes('Margherita 18') && pdfText.includes('ANTIPASTI'))
+{
+  const realFetch = globalThis.fetch
+  const home = '<html><body><a href="/menu.pdf">Our menu</a></body></html>'
+  globalThis.fetch = async (url) => {
+    const u = String(url)
+    if (u.includes('menu.pdf')) {
+      return { ok: true, text: async () => '%PDF-1.4 (binary served as text)', arrayBuffer: async () => fixtureBytes.buffer.slice(fixtureBytes.byteOffset, fixtureBytes.byteOffset + fixtureBytes.byteLength) }
+    }
+    return { ok: true, text: async () => home, arrayBuffer: async () => new ArrayBuffer(0) }
+  }
+  const res = await fetchMenuForPlace(
+    { name: 'Fixture Pizza', website: 'https://fixture.example/' },
+    { apiKey: '', baseUrl: '', model: '' })
+  check('flow: linked PDF becomes a parsed menu',
+    res.kind === 'menu' && res.menu.from_pdf === true && countItems(res.menu) >= 4)
+  globalThis.fetch = realFetch
+}
 
 console.log(failures === 0 ? '\nALL CHECKS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures ? 1 : 0)

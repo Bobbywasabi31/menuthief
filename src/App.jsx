@@ -22,7 +22,7 @@ const MIN_ZOOM_FOR_DATA = 13
 // This kills the stale-tab failure mode — a phone tab restored from
 // memory can run days-old code through several shipped fixes
 // (exactly what muddied the 2026-10-31 places hunt).
-const APP_BUILD = '1.2.5'
+const APP_BUILD = '1.3.0'
 
 // One-line summary of the last places fetch for the empty-state
 // notice and the Settings diagnostics (from lastFetchReport).
@@ -511,7 +511,7 @@ export default function App() {
 
           {menuPhase === 'pdf' && (
             <div className="menu-state">
-              <p>This restaurant publishes its menu as a PDF, which this version can’t read yet.</p>
+              <p>This restaurant publishes its menu as a PDF, but its text couldn’t be pulled — some PDFs are scanned images or use garbled fonts, and those need OCR, which isn’t built in yet.</p>
               <div className="sheet-actions">
                 <a className="btn btn-primary" href={pdfUrl} target="_blank" rel="noreferrer">Open the PDF menu</a>
                 <button className="btn btn-ghost" onClick={() => setMenuPhase('paste')}>Paste menu text instead</button>
@@ -565,6 +565,7 @@ export default function App() {
             <div className="menu-body">
               <div className="menu-meta">
                 {itemCount} dishes
+                {menu.from_pdf && <> · from the restaurant’s PDF menu</>}
                 {menu.engine === 'heuristic' && <> · auto-pulled from the website (no AI — an AI key in ⚙ gives cleaner results)</>}
                 {menuNote ? <> · {menuNote}</> : null}
                 {menu.fetched_at ? <> · fetched {formatDate(menu.fetched_at)}</> : null}

@@ -98,20 +98,36 @@ function normalizeElement(el) {
 }
 
 async function fetchFromEndpoint(endpoint, query, timeoutMs) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  // POST first; on any failure, one GET retry — some networks and
+  // proxies mangle POST bodies (the build VM's egress makes
+  // overpass-api.de answer 406 to every POST, for example), and the
+  // two transports fail independently often enough that the retry is
+  // nearly free insurance.
+  const attempt = async (makeRequest) => {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const resp = await makeRequest(controller.signal)
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const json = await resp.json()
+      return (json.elements || []).map(normalizeElement).filter(Boolean)
+    } finally {
+      clearTimeout(timer)
+    }
+  }
   try {
-    const resp = await fetch(endpoint, {
+    return await attempt((signal) => fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'data=' + encodeURIComponent(query),
-      signal: controller.signal,
-    })
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-    const json = await resp.json()
-    return (json.elements || []).map(normalizeElement).filter(Boolean)
-  } finally {
-    clearTimeout(timer)
+      signal,
+    }))
+  } catch (postErr) {
+    try {
+      return await attempt((signal) => fetch(`${endpoint}?data=${encodeURIComponent(query)}`, { signal }))
+    } catch {
+      throw postErr
+    }
   }
 }
 

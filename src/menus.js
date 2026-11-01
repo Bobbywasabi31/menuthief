@@ -236,6 +236,140 @@ export async function fetchPage(url, timeoutMs = 20000) {
   throw new Error('Could not fetch the page (site unreachable or blocking): ' + errors.join(' | '))
 }
 
+// Binary twin of fetchPage (PDF menus need the raw bytes — resp.text()
+// would corrupt them). Same relay chain.
+export async function fetchBinary(url, timeoutMs = 25000) {
+  const errors = []
+  for (const wrap of RELAYS) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const resp = await fetch(wrap(url), { signal: controller.signal })
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const buf = await resp.arrayBuffer()
+      if (!buf || buf.byteLength < 100) throw new Error('empty response')
+      return buf
+    } catch (err) {
+      errors.push(err.message)
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+  throw new Error('Could not fetch the file: ' + errors.join(' | '))
+}
+
+// ---------------------------------------------------------------------------
+// PDF menus (v1.3.0). Many restaurants publish the menu ONLY as a PDF
+// (the 2026-10-31 real-data pull found 3 among 15 sites). Text is
+// extracted in-browser with pdf.js (via unpdf — no worker file to
+// ship, which keeps the single-file build intact), cleaned by
+// normalizePdfText, then structured by the same paths as web text.
+// Honest limits, verified against the real files: Solare's PDF parses
+// fully (111 dishes); Tender Greens' parses price-less (its PDF has
+// no prices); Point Loma Seafoods' uses a custom font encoding that
+// garbles extraction (a substitution cipher, not text) — that class
+// needs OCR and still returns the 'pdf' state.
+// ---------------------------------------------------------------------------
+
+// Words the spaceless-token segmenter knows. PDF text extraction
+// often drops the spaces inside display type, producing tokens like
+// FRIEDCHICKENSANDWICH; greedy longest-match against this list puts
+// the spaces back. Misses stay merged — ugly, never wrong words.
+const SEGMENT_WORDS = new Set(('a,al,and,au,aux,bbq,beef,beer,bistro,black,blue,bowl,bread,burger,cake,cali,cheese,chicken,chipotle,chocolate,classic,coffee,corn,cream,crispy,crude,crudo,di,dinner,dish,dolce,e,egg,el,en,farm,fish,fresh,fried,fruit,garden,garlic,green,grilled,hand,herb,honey,house,hummus,ice,il,in,italian,kitchen,la,lasagna,le,lemon,little,lobster,lunch,maine,market,meat,mediterranean,mexican,mousse,mushroom,new,of,oil,olive,onion,orange,organic,oyster,pancetta,panko,parmigiana,pasta,peach,pepper,pesto,pie,pizza,plate,pollo,pork,potato,pozo,pozole,primi,prosciutto,ragu,ranch,red,rice,ricotta,risotto,roasted,roll,rolls,rustic,salad,salmon,salsa,sandwich,sauce,sausage,sea,seafood,seasonal,secondi,shrimp,signatures,smoked,soup,soups,southwest,spicy,spinach,steak,street,sweet,sweets,taco,tacos,tea,the,toast,tomato,tortilla,truffle,tuna,turkey,vanilla,vegetable,verde,veggie,white,wild,wine,with,wrap,wraps,york,yuzu,avocado,bacon,basil,bean,breakfast,burrito,cafe,caramel,carrot,ceviche,chili,chowder,clam,clams,cod,cookie,cowboy,crab,curry,dessert,desserts,drinks,duck,entrees,espresso,falafel,feta,filet,flatbread,fries,goat,halibut,ham,harvest,hazelnut,heirloom,kale,lamb,lavash,lettuce,lime,lobster,mac,maine,mango,marinara,mascarpone,mayo,meatball,melon,mint,mozzarella,mussels,nachos,noodle,oat,octopus,omelette,onions,orange,pancake,panna,parmesan,pastry,peanut,pear,pecorino,penne,pickle,pickled,pistachio,poached,poblano,polenta,porchetta,portobello,potatoes,prawn,pretzel,prime,provolone,pumpkin,queso,quinoa,radish,ravioli,ribeye,ribs,risotto,romaine,rosemary,sage,sake,salami,salsa,salted,sapori,scallop,scallops,seaweed,sesame,short,slaw,snapper,soda,sorbet,sourdough,soy,spaghetti,special,specials,squid,starter,starters,strip,succotash,sumac,sushi,sweet potato,tahini,tamale,tartare,tartufo,tea,tender,teriyaki,thyme,tiramisu,tofu,tomatillo,tomatoes,tonkatsu,torta,torte,traditional,trail,tres,trout,truffle,tuna,turmeric,turnip,veal,vegetables,vegetarian,veggie,vinaigrette,vodka,waffle,walnut,wasabi,watercress,watermelon,whipped,whiskey,white,wild,wine,yam,yellowtail,yogurt,yuzu,zaatar,zenzero,zeppole,zucchini').split(','))
+
+const SECTION_WORDS = new Set(['SOUPS', 'SWEETS', 'SALADS', 'SANDWICHES', 'BURGERS', 'TOASTS', 'PLATES', 'BOWLS', 'WRAPS', 'ENTREES', 'APPETIZERS', 'STARTERS', 'DESSERTS', 'DESSERT', 'DRINKS', 'SIDES', 'MAINS', 'SPECIALS', 'BREAKFAST', 'LUNCH', 'DINNER', 'BRUNCH', 'SUSHI', 'PIZZA', 'PASTA', 'TACOS', 'SEAFOOD', 'GRILL', 'BAR', 'CAFE', 'BAKERY', 'KIDS', 'CHILDREN'])
+
+function segmentToken(token) {
+  const words = []
+  let rest = token
+  while (rest.length) {
+    let hit = null
+    for (let len = Math.min(rest.length, 14); len >= 2; len--) {
+      const cand = rest.slice(0, len).toLowerCase()
+      if (SEGMENT_WORDS.has(cand)) { hit = cand; break }
+    }
+    if (!hit) return null
+    words.push(hit)
+    rest = rest.slice(hit.length)
+  }
+  return words.length >= 2 ? words : null
+}
+
+const titleCase = (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+
+// Cleans pdf.js output into text the menu parser can read:
+// - drops glyph-soup lines (icon fonts, dotted leaders, cipher junk)
+// - strips leaked icon glyphs (@, ®) glued to words
+// - re-spaces merged ALL-CAPS dish names (FRIEDCHICKENSANDWICH ->
+//   Fried Chicken Sandwich) while keeping real section headers caps
+export function normalizePdfText(text) {
+  const out = []
+  for (const rawLine of text.split('\n')) {
+    let line = rawLine.replace(/\s+/g, ' ').trim()
+    if (!line) continue
+    const alnum = (line.match(/[\p{L}\p{N}]/gu) || []).length
+    if (line.length >= 8 && alnum / line.length < 0.55) continue // glyph soup
+    line = line.replace(/[@®©]+/g, '').replace(/\s+/g, ' ').trim()
+    if (!line) continue
+    const tokens = line.split(' ')
+    const isAllCaps = /[A-Z]/.test(line) && line === line.toUpperCase()
+    if (tokens.length === 1 && isAllCaps && line.length >= 6 && !/\d/.test(line)) {
+      if (SECTION_WORDS.has(line)) { out.push(line); continue }
+      const seg = segmentToken(line)
+      out.push(seg ? seg.map(titleCase).join(' ') : line)
+      continue
+    }
+    if (isAllCaps && tokens.length >= 3 && !tokens.some((t) => SECTION_WORDS.has(t))) {
+      out.push(tokens.map((t) => (/^[A-Z][A-Z'’-]*$/.test(t) ? titleCase(t) : t)).join(' '))
+      continue
+    }
+    out.push(line)
+  }
+  return out.join('\n')
+}
+
+export async function extractPdfText(bytes) {
+  const { extractText } = await import('unpdf')
+  const { text } = await extractText(new Uint8Array(bytes), { mergePages: true })
+  const raw = typeof text === 'string' ? text : (text || []).join('\n')
+  if (isGarbledPdfText(raw)) return ''
+  return normalizePdfText(raw)
+}
+
+// Garble gate: PDFs with a custom font encoding and no ToUnicode map
+// (Point Loma Seafoods, verified 2026-11-01) extract as a substitution
+// cipher riddled with control characters — real menu text has ~none.
+// Without this gate the cipher's stray numbers (.99 fragments) pass
+// the menu guard and the app would serve gibberish as a menu.
+export function isGarbledPdfText(raw) {
+  if (!raw || raw.length <= 200) return false
+  const control = (raw.match(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g) || []).length
+  return control / raw.length > 0.01
+}
+
+// Fetches + parses one PDF menu URL. Returns a menu object or null
+// (not a PDF, no extractable text, or the text isn't a menu) — the
+// caller then falls back to the plain 'pdf' state.
+export async function tryPdfMenu(url, place, settings, onStatus = () => {}) {
+  try {
+    onStatus('Found the menu as a PDF — reading it…')
+    const buf = await fetchBinary(url)
+    const head = new Uint8Array(buf.slice(0, 5))
+    if (String.fromCharCode(...head) !== '%PDF-') return null
+    const text = await extractPdfText(buf)
+    if (!text || text.length < 60) return null // the is_menu guard does the real judging
+    onStatus(settings.apiKey ? 'Structuring the PDF menu with your AI key…' : 'Pulling dishes from the PDF…')
+    const menu = await structureFromText(text, settings, {
+      placeName: place.name, source: 'website', sourceUrl: url, pricelessOk: true,
+    })
+    if (!menu.is_menu) return null
+    menu.from_pdf = true
+    return menu
+  } catch {
+    return null
+  }
+}
+
 // ---------------------------------------------------------------------------
 // BYOK LLM settings + structuring (OpenAI-compatible chat completions).
 // ---------------------------------------------------------------------------
@@ -383,7 +517,7 @@ function isTitleHeader(lines, i) {
   return Boolean(splitPrice(next)) || STANDALONE_PRICE_RE.test(lines[i + 2] || '')
 }
 
-export function parseMenuHeuristic(text) {
+export function parseMenuHeuristic(text, opts = {}) {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
   const sections = [{ name: 'Menu', items: [] }]
   let current = sections[0]
@@ -480,10 +614,13 @@ export function parseMenuHeuristic(text) {
 
     // Priceless dish (name line + longer description line), only once the
     // current section already has a priced dish anchoring it as menu-like.
+    // PDF menus may carry no prices at all (Tender Greens) — for those the
+    // caller passes pricelessOk and the is_menu guard below (6+ dishes in
+    // a named section) does the anchoring instead.
     const next = lines[i + 1] || ''
     if (line.length <= 64 && next.length > line.length && next.length <= 210
       && !splitPrice(next) && !isCapsHeader(next) && !isSkipLine(next)
-      && current.items.some((it) => it.price !== null)) {
+      && (opts.pricelessOk || current.items.some((it) => it.price !== null))) {
       pushItem({ name: line, description: next, price: null })
       i += 2
       continue
@@ -496,7 +633,8 @@ export function parseMenuHeuristic(text) {
   const all = kept.flatMap((s) => s.items)
   const pricedCount = all.filter((it) => it.price !== null).length
   const namedSections = kept.filter((s) => s.name !== 'Menu').length
-  const isMenu = pricedCount >= 3 || (all.length >= 6 && pricedCount >= 1 && namedSections >= 1)
+  const isMenu = Boolean(pricedCount >= 3 || (all.length >= 6 && pricedCount >= 1 && namedSections >= 1)
+    || (opts.pricelessOk && all.length >= 6 && namedSections >= 1))
   return { is_menu: isMenu, sections: isMenu ? kept : [] }
 }
 
@@ -504,7 +642,7 @@ export function parseMenuHeuristic(text) {
 // (best quality), otherwise the built-in heuristic puller — pulling menus
 // from websites must not require a key. LLM transport/validation failures
 // also fall back to the heuristic before giving up.
-export async function structureFromText(text, settings, { placeName, source, sourceUrl }) {
+export async function structureFromText(text, settings, { placeName, source, sourceUrl, pricelessOk = false }) {
   if (settings.apiKey) {
     try {
       return await structureMenuText(text, settings, { placeName, source, sourceUrl })
@@ -513,7 +651,7 @@ export async function structureFromText(text, settings, { placeName, source, sou
       // fall through to the heuristic
     }
   }
-  const parsed = parseMenuHeuristic(text)
+  const parsed = parseMenuHeuristic(text, { pricelessOk })
   return {
     place_name: placeName,
     source,
@@ -530,9 +668,12 @@ export async function structureFromText(text, settings, { placeName, source, sou
 // from the homepage's links, probes the common menu paths when no link is
 // published, then structures the page: AI key if saved, else the built-in
 // heuristic puller. Returns one of:
-//   { kind: 'menu', menu }      — structured (caller caches it)
+//   { kind: 'menu', menu }      — structured (caller caches it); PDF menus
+//                                 included since v1.3.0 (menu.from_pdf)
 //   { kind: 'nomenu', menu }    — site checked, no readable menu there
-//   { kind: 'pdf', url }        — menu exists but is a PDF (not parsed yet)
+//   { kind: 'pdf', url }        — menu is a PDF whose text couldn't be
+//                                 extracted (scanned / garbled font — OCR
+//                                 territory), or extraction found no menu
 // Throws on transport failure; the UI offers retry / paste instead.
 // ---------------------------------------------------------------------------
 
@@ -561,7 +702,16 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
   if (!place.website) throw new Error('NO_WEBSITE')
   onStatus('Reading the restaurant’s website…')
   const homeHtml = await fetchPage(place.website)
-  if (homeHtml.startsWith('%PDF')) return { kind: 'pdf', url: place.website }
+  let pdfAttempts = 0
+  const attemptPdf = async (url) => {
+    if (pdfAttempts >= 2) return null
+    pdfAttempts++
+    return tryPdfMenu(url, place, settings, onStatus)
+  }
+  if (homeHtml.startsWith('%PDF')) {
+    const m = await attemptPdf(place.website)
+    return m ? { kind: 'menu', menu: m } : { kind: 'pdf', url: place.website }
+  }
   const candidates = menuLinkCandidates(extractLinks(homeHtml, place.website), place.website)
 
   // HTML menu pages are tried BEFORE any PDF candidate. The M0 ranking
@@ -579,7 +729,14 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
       onStatus('Found a menu page — reading it…')
       html = await fetchPage(url)
     } catch { continue }
-    if (html.startsWith('%PDF')) { if (/menu/i.test(url)) pdfFallback = pdfFallback || url; continue }
+    if (html.startsWith('%PDF')) {
+      if (/menu/i.test(url)) {
+        const m = await attemptPdf(url)
+        if (m) return { kind: 'menu', menu: m }
+        pdfFallback = pdfFallback || url
+      }
+      continue
+    }
     onStatus(settings.apiKey ? 'Structuring the menu with your AI key…' : 'Pulling the menu from the website…')
     const menu = await structureFromText(htmlToText(html), settings, {
       placeName: place.name, source: 'website', sourceUrl: url,
@@ -598,7 +755,14 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
       onStatus(`Checking ${path} for a menu…`)
       html = await fetchPageFast(url)
     } catch { continue }
-    if (html.startsWith('%PDF')) { if (/menu/i.test(url)) pdfFallback = pdfFallback || url; continue }
+    if (html.startsWith('%PDF')) {
+      if (/menu/i.test(url)) {
+        const m = await attemptPdf(url)
+        if (m) return { kind: 'menu', menu: m }
+        pdfFallback = pdfFallback || url
+      }
+      continue
+    }
     const linked = menuLinkCandidates(extractLinks(html, url), url)
     if (!pdfFallback) pdfFallback = pickPdfFallback(linked)
     const menu = await structureFromText(htmlToText(html), settings, {
@@ -613,6 +777,10 @@ export async function fetchMenuForPlace(place, settings, onStatus = () => {}) {
     placeName: place.name, source: 'website', sourceUrl: place.website,
   })
   if (menu.is_menu) return { kind: 'menu', menu }
-  if (pdfFallback) return { kind: 'pdf', url: pdfFallback }
+  if (pdfFallback) {
+    const m = await attemptPdf(pdfFallback)
+    if (m) return { kind: 'menu', menu: m }
+    return { kind: 'pdf', url: pdfFallback }
+  }
   return { kind: 'nomenu', menu }
 }
