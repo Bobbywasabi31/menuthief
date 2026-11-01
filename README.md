@@ -7,11 +7,14 @@ A food-only map: every pin is somewhere to eat. Tap a place to see its
 
 ## Download
 
+- **Website (live):** **[bobbywasabi31.github.io/menuthief](https://bobbywasabi31.github.io/menuthief/)**
+  — open it on your phone and Add to Home Screen to run it like an app.
+  It republishes automatically on every push to `main`.
 - **Android app:** [`menuthief.apk`](https://github.com/Bobbywasabi31/menuthief/raw/main/menuthief.apk)
   — right in this repo (4.2 MB, debug-signed preview build; Android will
   ask you to allow the install). Also attached to every
   [release](https://github.com/Bobbywasabi31/menuthief/releases).
-- **Web version:** `menuthief.html` on the
+- **Web version (file):** `menuthief.html` on the
   [latest release](https://github.com/Bobbywasabi31/menuthief/releases/latest)
   — one self-contained file, open it in any browser.
 
